@@ -2,9 +2,22 @@
 
 繁體中文的日文入門學習網站，原生 HTML/CSS/JavaScript，無框架與建置依賴。
 
+## 網站與版本
+
+- 線上網站：https://squall021.github.io/japanese_learning/
+- 原始碼：https://github.com/squall021/japanese_learning
+- 儲存點與回復方式：[RESTORE.md](RESTORE.md)
+- 原 Sites 部署資訊保留在 `.openai/hosting.json`，目前發布目標為 GitHub Pages。
+
+推送至 `main` 會由 GitHub Actions 自動檢查並發布 `dist/`。也可在 Actions 的 `Deploy Japanese Learning` 手動指定儲存點標籤，重新發布舊版。
+
+搬移網址後，先在舊網站「我的學習」匯出進度，再於新網站匯入，才能帶入原本的本機學習紀錄。
+
 ## 啟動
 
 在此目錄執行 `node server.mjs`，瀏覽 http://127.0.0.1:5180 。靜態網站內容位於 `dist/`，可直接部署。
+
+執行檢查：`npm run check` 與 `node verify.mjs`。不需要安裝 npm 套件。
 
 ## 功能
 
