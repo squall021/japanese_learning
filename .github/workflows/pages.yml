@@ -37,6 +37,7 @@ jobs:
           if [ -f dist/handwriting/handwriting.js ]; then node --check dist/handwriting/handwriting.js; fi
           node verify.mjs
           if [ -f verify-handwriting.mjs ]; then node verify-handwriting.mjs; fi
+          if [ -f verify-particles.mjs ]; then node verify-particles.mjs; fi
       - name: Record deployed source
         run: git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
       - name: Upload website

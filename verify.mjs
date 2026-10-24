@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {cleanWritingProgress} from './dist/handwriting/model.js';
 import {hasHandwriting} from './dist/handwriting/handwriting.js';
+import {emptyParticles,cleanParticles} from './dist/particles/model.js';
+import {createParticles} from './dist/particles/ui.js';
 import {readFileSync} from 'node:fs';
 import {lessons,allWords,kanaRows,comboRows} from './dist/data.js';
 assert.equal(lessons.length,5);
@@ -15,7 +17,7 @@ const memory=new Map(),events={};
 let writingOptions;
 const nodes=new Map();
 function node(s){if(!nodes.has(s))nodes.set(s,{innerHTML:'',textContent:'',classList:{add(){},remove(){}},close(){this.open=false},showModal(){this.open=true},addEventListener(){}});return nodes.get(s);}
-const context={cleanWritingProgress,hasHandwriting,openHandwriting:options=>{writingOptions=options;},lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
+const context={emptyParticles,cleanParticles,createParticles,cleanWritingProgress,hasHandwriting,openHandwriting:options=>{writingOptions=options;},lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
 vm.createContext(context);
 const code=readFileSync('dist/app.js','utf8').replace(/^import[^\n]+\n/gm,'');
 vm.runInContext(code,context);
@@ -70,4 +72,8 @@ assert.equal(run('validate(JSON.parse(JSON.stringify(state))).lastWriting.k'),'�
 assert.ok(run('writingBanner()').includes('繼續上次手寫「ツ」'));
 run("showKana('が');");
 assert.ok(!node('#detail').innerHTML.includes('data-writing='));
+assert.equal(run('Object.keys(validate({...state,particles:undefined}).particles.skills).length'),0);
+run('state.particles={lessons:{wa:{complete:true,best:3,attempts:1}},skills:{topic:{attempts:2,correct:1,streak:1,needsReview:true,due:12345}}};save();');
+assert.equal(run('validate(JSON.parse(localStorage.getItem("hiyori-v1"))).particles.lessons.wa.best'),3);
+assert.equal(run('validate(JSON.parse(localStorage.getItem("hiyori-v1"))).particles.skills.topic.needsReview'),true);
 console.log('PASS: original learning flows; writing progress; direct kana entry; separate hiragana/katakana resume; reload/import compatibility and invalid resume data.');

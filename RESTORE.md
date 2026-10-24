@@ -14,6 +14,8 @@
 | `v1.1.0` | 92 個基本假名手寫練習版，含筆順動畫、描寫、自由書寫、筆跡對照與獨立進度 |
 | `checkpoint-20261024-1751-before-writing-resume` | 調整字卡手寫入口與接續功能前的 v1.1.0 |
 | `v1.1.1` | 字卡直接手寫入口更清楚，平假名與片假名各自接續最後練習的字 |
+| `checkpoint-20261024-1807-before-particles` | 加入助詞教學前的 v1.1.1 |
+| `v1.2.0` | 六堂助詞課、情境練習、混合測驗與依用法安排的易錯複習 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
 
@@ -36,7 +38,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs
