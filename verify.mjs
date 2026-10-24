@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+import {lessons,allWords,kanaRows,comboRows} from './dist/data.js';
+assert.equal(lessons.length,5);
+assert.equal(allWords.length,30);
+assert.equal(new Set(allWords.map(w=>w.id)).size,30);
+assert.equal(kanaRows.flat().filter(k=>k?.group==='basic').length,46);
+assert.equal(kanaRows.flat().filter(k=>k?.group==='voiced').length,25);
+assert.equal(comboRows.flat().length,33);
+for(const l of lessons){assert.equal(l.questions.length,3);assert.ok(l.dialogue.length>=4);for(const q of l.questions){if(q.options)assert.ok(q.options[q.answer]);else assert.equal(typeof q.answer,'string');}}
+const memory=new Map(),events={};
+const nodes=new Map();
+function node(s){if(!nodes.has(s))nodes.set(s,{innerHTML:'',textContent:'',classList:{add(){},remove(){}},close(){this.open=false},showModal(){this.open=true},addEventListener(){}});return nodes.get(s);}
+const context={lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
+vm.createContext(context);
+const code=readFileSync('dist/app.js','utf8').replace(/^import[^\n]+\n/,'');
+vm.runInContext(code,context);
+const run=code=>vm.runInContext(code,context);
+assert.throws(()=>run('validate({version:2})'));
+assert.equal(run("esc('<script>')"),'&lt;script&gt;');
+run("startLesson('meet')");
+assert.equal(JSON.parse(memory.get('hiyori-v1')).progress.meet.step,0);
+for(const l of lessons){run(`startLesson('${l.id}');moveStep(3);question=0;answer=null;`);for(const q of l.questions){run(`checkAnswer(${JSON.stringify(q.answer)})`);assert.equal(run('answer'),true);run('question++;answer=null;');}}
+run("startLesson('meet');moveStep(4)");
+events.click({target:{closest:()=>({dataset:{action:'complete'}})}});
+assert.equal(run('state.progress.meet.complete'),true);
+assert.equal(run('dueIds().length'),6);
+assert.ok(run('home()').includes('一杯咖啡的日文'));
+run("review={queue:['hajime'],count:0};flipped=true;");
+events.click({target:{closest:()=>({dataset:{rate:'good'}})}});
+assert.equal(run('state.cards.hajime.interval'),1);
+assert.equal(run('dueIds().length'),5);
+run("review={queue:['hajime'],count:0};flipped=true;");
+events.click({target:{closest:()=>({dataset:{rate:'hard'}})}});
+assert.equal(run('state.cards.hajime.interval'),1);
+run("review={queue:['hajime'],count:0};flipped=true;");
+events.click({target:{closest:()=>({dataset:{rate:'again'}})}});
+assert.equal(run('review.queue[0]'),'hajime');
+assert.equal(run('state.cards.hajime.interval'),0);
+assert.ok(run("validate(JSON.parse(JSON.stringify(state))).progress.meet.complete"));
+console.log('PASS: 5 lessons, 30 unique words, 46 basic + 25 voiced + 33 combined kana; all quiz answers; escaping; import validation; progress persistence; completion; three review ratings.');
