@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {cleanWritingProgress} from './dist/handwriting/model.js';
 import {readFileSync} from 'node:fs';
 import {lessons,allWords,kanaRows,comboRows} from './dist/data.js';
 assert.equal(lessons.length,5);
@@ -12,9 +13,9 @@ for(const l of lessons){assert.equal(l.questions.length,3);assert.ok(l.dialogue.
 const memory=new Map(),events={};
 const nodes=new Map();
 function node(s){if(!nodes.has(s))nodes.set(s,{innerHTML:'',textContent:'',classList:{add(){},remove(){}},close(){this.open=false},showModal(){this.open=true},addEventListener(){}});return nodes.get(s);}
-const context={lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
+const context={cleanWritingProgress,hasHandwriting:()=>true,openHandwriting:()=>{},lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
 vm.createContext(context);
-const code=readFileSync('dist/app.js','utf8').replace(/^import[^\n]+\n/,'');
+const code=readFileSync('dist/app.js','utf8').replace(/^import[^\n]+\n/gm,'');
 vm.runInContext(code,context);
 const run=code=>vm.runInContext(code,context);
 assert.throws(()=>run('validate({version:2})'));
@@ -39,4 +40,8 @@ events.click({target:{closest:()=>({dataset:{rate:'again'}})}});
 assert.equal(run('review.queue[0]'),'hajime');
 assert.equal(run('state.cards.hajime.interval'),0);
 assert.ok(run("validate(JSON.parse(JSON.stringify(state))).progress.meet.complete"));
+assert.equal(run('Object.keys(validate({...state,writing:undefined}).writing).length'),0);
+run("state.writing={'あ':{trace:2,free:1,lastAt:'2026-10-24'}};save();");
+assert.equal(JSON.parse(memory.get('hiyori-v1')).writing['あ'].trace,2);
+assert.equal(run('validate(JSON.parse(JSON.stringify(state))).writing["あ"].free'),1);
 console.log('PASS: 5 lessons, 30 unique words, 46 basic + 25 voiced + 33 combined kana; all quiz answers; escaping; import validation; progress persistence; completion; three review ratings.');
