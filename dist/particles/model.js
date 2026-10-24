@@ -1,9 +1,11 @@
 import {particleLessons, usages, allParticleQuestions} from './data.js';
-export const emptyParticles = () => ({lessons:{},skills:{}});
+import {cleanVariationRecent,reviewVariation} from './generator.js';
+export const emptyParticles = () => ({lessons:{},skills:{},recentVariations:[]});
 const count = n => Number.isSafeInteger(n) && n >= 0 ? Math.min(n,1000000) : 0;
 export function cleanParticles(raw) {
   const out=emptyParticles();
   if(!raw || typeof raw!=='object' || Array.isArray(raw)) return out;
+  out.recentVariations=cleanVariationRecent(raw.recentVariations);
   for(const l of particleLessons){
     const p=raw.lessons?.[l.id];
     if(p && typeof p==='object') out.lessons[l.id]={complete:p.complete===true,best:Math.min(count(p.best),l.questions.length),attempts:count(p.attempts)};
@@ -42,6 +44,9 @@ export function shuffled(items,rng=Math.random){
 export function particleQueue(kind,progress,rng=Math.random,now=Date.now()){
   if(kind==='mixed')return shuffled(particleLessons.map(l=>shuffled(allParticleQuestions.filter(q=>q.lesson===l.id),rng)[0]),rng);
   const due=dueParticleUsages(progress,now);
-  // Two different examples per usage where available; never repeat a question in a session.
-  return shuffled(due.flatMap(id=>shuffled(allParticleQuestions.filter(q=>q.use===id),rng).slice(0,2)),rng);
+  // Pair a fixed assessment with a fresh sentence about the same usage.
+  return shuffled(due.flatMap(id=>[
+    shuffled(allParticleQuestions.filter(q=>q.use===id),rng)[0],
+    reviewVariation(id,progress.recentVariations||[],rng)
+  ].filter(Boolean)),rng);
 }

@@ -16,8 +16,12 @@
 | `v1.1.1` | 字卡直接手寫入口更清楚，平假名與片假名各自接續最後練習的字 |
 | `checkpoint-20261024-1807-before-particles` | 加入助詞教學前的 v1.1.1 |
 | `v1.2.0` | 六堂助詞課、情境練習、混合測驗與依用法安排的易錯複習 |
+| `checkpoint-20261024-2252-before-variations` | 加入句型變化練習前的 v1.2.0 |
+| `v1.3.0` | 299 種句型變化組合、六課與單課加強、近期避重複及變化題複習 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
+
+v1.3.0 已通過全部語法與學習流程檢查，包括 299 種組合的完整性、抽題分配、近期避重複、舊備份相容、答題紀錄與用法複習。另以桌面與 390px 手機版瀏覽器驗證六題作答、單課重練、生詞提示、多重答案與重新載入後的錯題紀錄。
 
 ## 方法一：在 GitHub 重新發布儲存點
 
@@ -38,7 +42,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs
