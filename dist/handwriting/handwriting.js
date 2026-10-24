@@ -248,6 +248,7 @@ class WritingPractice {
     if (!hasHandwriting(char)) return;
     this.cancelAnimation(); this.currentStroke = null;
     this.char = char; this.result = false; this.hint = false; this.demoStep = 0;
+    this.options.onChoose?.(char);
     this.render(); this.dialog.scrollTop = 0;
     this.query('#hw-character').focus();
   }
