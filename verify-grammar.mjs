@@ -5,9 +5,10 @@ import {emptyGrammar,cleanGrammar,isGrammarAccepted,recordGrammarAnswer,finishGr
 import {createGrammar} from './dist/grammar/ui.js';
 import {plainJapanese,particleText} from './dist/particles/ui.js';
 
-assert.equal(grammarLessons.length,3);assert.equal(allGrammarQuestions.length,18);
-assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,18);
-assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:7,build:7,transform:4});
+assert.equal(grammarLessons.length,6);assert.equal(allGrammarQuestions.length,36);
+assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,36);
+assert.equal(Object.keys(grammarSkills).length,12);
+assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:13,build:13,transform:10});
 for(const l of grammarLessons){
   assert.equal(l.examples.length,3);assert.equal(l.questions.length,6);assert.ok(l.notes.length>=3);
   for(const e of l.examples){
@@ -28,11 +29,27 @@ for(const l of grammarLessons){
     }
   }
 }
-for(const id of ['ng-3','ng-6']){
+for(const id of ['ng-3','ng-6','ad-6']){
   const q=allGrammarQuestions.find(q=>q.id===id);
   for(const ending of ['じゃありません','ではありません','じゃないです','ではないです'])assert.ok(isGrammarAccepted(q,ending));
   assert.ok(!isGrammarAccepted(q,'です'));assert.ok(!isGrammarAccepted(q,'ません'));
 }
+const adjectiveNegative=allGrammarQuestions.find(q=>q.id==='ad-3');
+assert.ok(isGrammarAccepted(adjectiveNegative,'{熱|あつ}くないです'));
+assert.ok(isGrammarAccepted(adjectiveNegative,'{熱|あつ}くありません'));
+assert.ok(!isGrammarAccepted(adjectiveNegative,'{熱|あつ}いじゃないです'));
+const flexibleOrder=allGrammarQuestions.find(q=>q.id==='ve-5');
+assert.ok(isGrammarAccepted(flexibleOrder,[0,1,2,3,4,5]));
+assert.ok(isGrammarAccepted(flexibleOrder,[2,3,0,1,4,5]));
+assert.ok(!isGrammarAccepted(flexibleOrder,[0,3,2,1,4,5]));
+for(const id of ['verbs','past','adjectives']){
+  for(const q of allGrammarQuestions.filter(q=>q.lesson===id&&q.type==='build'))assert.ok(!q.hint.includes('身分或類別'));
+}
+const oldProgress={lessons:{statement:{complete:true,best:5,attempts:2}},skills:{'negative-form':{attempts:3,correct:2,streak:1,needsReview:true,due:1234}}};
+assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(oldProgress))),oldProgress);
+const expanded=cleanGrammar({...oldProgress,lessons:{...oldProgress.lessons,verbs:{complete:true,best:4,attempts:1},adjectives:{complete:true,best:6,attempts:1}},skills:{...oldProgress.skills,'past-form':{attempts:2,correct:1,streak:0,needsReview:true,due:0}}});
+assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(expanded))),expanded);
+assert.deepEqual(expanded.lessons.statement,oldProgress.lessons.statement);
 const now=123456,p=emptyGrammar(),q=allGrammarQuestions.find(q=>q.id==='qu-1');
 assert.equal(recordGrammarAnswer(p,q,'invalid',now),null);assert.deepEqual(p,emptyGrammar());
 recordGrammarAnswer(p,q,'かです',now);assert.deepEqual(dueGrammarSkills(p,now),['question-form']);
@@ -49,7 +66,7 @@ assert.deepEqual(bad.lessons.statement,{complete:false,best:6,attempts:0});asser
 assert.deepEqual(bad.skills['negative-form'],{attempts:3,correct:3,streak:3,needsReview:false,due:0});assert.equal(bad.skills.unknown,undefined);
 for(const random of [()=>0,()=>.4,()=>.99]){
   const mixed=grammarQueue('mixed',emptyGrammar(),random,now);assert.equal(mixed.length,6);assert.equal(new Set(mixed.map(q=>q.id)).size,6);
-  for(const l of grammarLessons)assert.equal(mixed.filter(q=>q.lesson===l.id).length,2);
+  for(const l of grammarLessons)assert.equal(mixed.filter(q=>q.lesson===l.id).length,1);
   const review=grammarQueue('review',p,random,now+3*86400000);assert.equal(review.length,2);assert.equal(new Set(review.map(q=>q.id)).size,2);assert.ok(review.every(q=>q.use==='question-form'));
 }
 assert.deepEqual(grammarQueue('review',emptyGrammar()),[]);
@@ -85,12 +102,14 @@ for(const l of grammarLessons){
       click({ganswer:option[1]});click({ganswer:option[1]});
     }
     assert.ok(html.includes('✓ 判斷正確'),question.id);assert.ok(!html.includes('undefined'));
+    assert.ok(!/\{[^{}]+\|[^{}]+\}/.test(html),`${question.id}: raw furigana markup`);
+    if(question.id==='ad-3')assert.ok(html.includes('<mark><span class="reading"'), 'Furigana and answer emphasis must render together');
     click({gaction:'next'});
   }
   assert.deepEqual(progress.lessons[l.id],{complete:true,best:6,attempts:1});click({gaction:'next'});assert.equal(progress.lessons[l.id].attempts,1);
   assert.ok(html.includes('本次答對題數'));
 }
-assert.equal(saved,18);click({gaction:'retry'});assert.ok(html.includes('從一句介紹，到一問一答'));
+assert.equal(saved,36);click({gaction:'retry'});assert.ok(html.includes('把看到的、感受到的，形容出來'));
 ui.reset();click({glesson:'statement'});click({gaction:'practice'});
 choose('学生ですか');assert.ok(html.includes('這裡要介紹自己的身分'));
 assert.equal(progress.skills['statement-meaning'].needsReview,true);click({gaction:'next'});
@@ -99,4 +118,15 @@ for(const id of [3,2,1,0])click({gtile:String(id)});click({gaction:'submit'});
 assert.ok(html.includes('再看一次句子裡的線索'));assert.ok(html.includes('完整答案'));assert.equal(progress.skills['statement-order'].needsReview,true);
 ui.reset();click({gaction:'review'});assert.ok(html.includes('換個角度，再理解一次'));
 const styles=readFileSync('dist/index.html','utf8');assert.ok(styles.includes('./grammar/style.css'));
-console.log('PASS: 3 grammar lessons / 9 annotated examples / 18 questions; all negative alternatives; sentence ordering, removal and clear; first-answer scoring; incomplete/duplicate guards; lesson completion; mixed/review selection; scheduling; backup migration and sanitization.');
+// A correctly reordered action sentence must receive credit through the actual controller as well.
+ui.reset();click({glesson:'verbs'});click({gaction:'practice'});
+for(const id of ['ve-1','ve-2','ve-3','ve-4','ve-5']){
+  const q=allGrammarQuestions.find(q=>q.id===id);
+  if(q.type==='build'){
+    const order=q.id==='ve-5'?q.orders[1]:q.orders[0];for(const i of order)click({gtile:String(i)});click({gaction:'submit'});
+  }else{
+    const option=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(q.answers[0])}</span>`));assert.ok(option);click({ganswer:option[1]});
+  }
+  assert.ok(html.includes('✓ 判斷正確'));click({gaction:'next'});
+}
+console.log('PASS: 6 grammar lessons / 18 annotated examples / 36 questions; verb polarity and past tense; i/na adjective forms; alternative negatives and flexible word order; furigana with answer emphasis; first-answer scoring; incomplete/duplicate guards; balanced six-lesson mixed practice; review scheduling and old/new backup compatibility.');

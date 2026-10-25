@@ -32,6 +32,6 @@ export function finishGrammarLesson(p,id,score){
 export const dueGrammarSkills=(p,now=Date.now())=>Object.keys(grammarSkills).filter(id=>p.skills[id]&&(p.skills[id].needsReview||p.skills[id].due<=now));
 export function shuffleGrammar(items,rng=Math.random){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 export function grammarQueue(kind,p,rng=Math.random,now=Date.now()){
-  if(kind==='mixed')return shuffleGrammar(grammarLessons.flatMap(l=>shuffleGrammar(allGrammarQuestions.filter(q=>q.lesson===l.id),rng).slice(0,2)),rng);
+  if(kind==='mixed')return shuffleGrammar(grammarLessons.map(l=>shuffleGrammar(allGrammarQuestions.filter(q=>q.lesson===l.id),rng)[0]),rng);
   return shuffleGrammar(dueGrammarSkills(p,now).flatMap(id=>shuffleGrammar(allGrammarQuestions.filter(q=>q.use===id),rng).slice(0,2)),rng);
 }
