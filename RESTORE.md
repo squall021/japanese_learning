@@ -30,6 +30,8 @@
 | `v1.8.0` | 十五堂文法、許可／否定請求／禁止、生活場景與目的切換圖解 |
 | `checkpoint-20261025-2336-before-past-desire-invitation` | 加入第 16～18 課前的 v1.8.0 |
 | `v1.9.0` | 十八堂文法、た形／たいです／邀請與提議、願望切換及對話圖解 |
+| `checkpoint-20261026-0013-before-scenario-grammar` | 整合情境應用課前的 v1.9.0 |
+| `v1.10.0` | 十三堂情境課、63 題，新增八堂應用對應十八課文法；成績、回看與概念複習整合 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
 
@@ -46,6 +48,8 @@ v1.7.0 已通過全部語法與七組自動檢查，涵蓋十二課 72 題、24 
 v1.8.0 已通過全部語法與八組自動檢查：十五課 90 題、8 個新情境動詞、120 個圖解及目的比較狀態、ない形保留與来る讀音、許可問答、合理語序、複習與舊備份相容。瀏覽器驗證第 13 課完整六題、錯題解析與重載成績；桌面及 390px 手機版圖解／問答目視與無水平溢位檢查完成。
 
 v1.9.0 已通過全部語法與九組自動檢查，涵蓋十八課 108 題、24 個た形、8 組願望／8 組邀請及 144 個新圖解與對話狀態。另核對来る讀音、兩種願望否定、分類／形式分開記錄、語序與舊備份。瀏覽器完成第 17 課六題、替代答案、錯題及重載成績，並驗證た形分類回饋與邀請回應切換；桌面及 390px 手機版圖解、願望及對話已目視核對、確認無水平溢位，預覽保存在工作區。
+
+v1.10.0 已通過全部語法與十組自動檢查，涵蓋十三課 63 題流程、48 題實際對應十八堂文法、24 組拆解、78 個詞語 ID、漢字／假名與否定替代答案、標音、重複提交與完成防護、共用文法概念但分開成績，以及舊備份相容。瀏覽器完成展覽課六題、5／6 結算、完成與重載保存；原五課紀錄保留，錯題已加入文法複習。另實測回看文法並返回、手機輸入與長選項換行。桌面及 390px 手機版完成目視與無水平溢位檢查，預覽保存在工作區。
 
 ## 方法一：在 GitHub 重新發布儲存點
 
@@ -66,7 +70,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs

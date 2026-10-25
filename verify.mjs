@@ -7,19 +7,23 @@ import {createParticles} from './dist/particles/ui.js';
 import {emptyGrammar,cleanGrammar} from './dist/grammar/model.js';
 import {createGrammar} from './dist/grammar/ui.js';
 import {readFileSync} from 'node:fs';
-import {lessons,allWords,kanaRows,comboRows} from './dist/data.js';
-assert.equal(lessons.length,5);
-assert.equal(allWords.length,30);
-assert.equal(new Set(allWords.map(w=>w.id)).size,30);
+import {acceptedScenarioAnswers,scenarioAnswerMarkup,recordScenarioAnswer,cleanCourseProgress,canFinishCourse,finishScenarioPractice} from './dist/scenarios/model.js';
+import {scenarioTeaching,scenarioGrammarLinks,scenarioCourseList} from './dist/scenarios/ui.js';
+import {particleText,plainJapanese} from './dist/particles/ui.js';
+import {lessons,legacyLessons,allWords,kanaRows,comboRows} from './dist/data.js';
+assert.equal(lessons.length,13);assert.equal(legacyLessons.length,5);
+assert.equal(allWords.length,78);
+assert.equal(new Set(allWords.map(w=>w.id)).size,78);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='basic').length,46);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='voiced').length,25);
 assert.equal(comboRows.flat().length,33);
-for(const l of lessons){assert.equal(l.questions.length,3);assert.ok(l.dialogue.length>=4);for(const q of l.questions){if(q.options)assert.ok(q.options[q.answer]);else assert.equal(typeof q.answer,'string');}}
+for(const l of lessons){assert.equal(l.questions.length,l.kind==='application'?6:3);assert.ok(l.dialogue.length>=4);for(const q of l.questions){if(q.options)assert.ok(q.options[q.answer]);else assert.equal(typeof q.answer,'string');}}
 const memory=new Map(),events={};
 let writingOptions;
 const nodes=new Map();
-function node(s){if(!nodes.has(s))nodes.set(s,{innerHTML:'',textContent:'',classList:{add(){},remove(){}},close(){this.open=false},showModal(){this.open=true},addEventListener(){}});return nodes.get(s);}
-const context={emptyGrammar,cleanGrammar,createGrammar,emptyParticles,cleanParticles,createParticles,cleanWritingProgress,hasHandwriting,openHandwriting:options=>{writingOptions=options;},lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
+function node(s){if(!nodes.has(s))nodes.set(s,{focus(){},scrollIntoView(){},innerHTML:'',textContent:'',classList:{add(){},remove(){}},close(){this.open=false},showModal(){this.open=true},addEventListener(){}});return nodes.get(s);}
+globalThis.document={querySelector:node};globalThis.window={scrollTo(){}};
+const context={particleText,plainJapanese,acceptedScenarioAnswers,scenarioAnswerMarkup,recordScenarioAnswer,cleanCourseProgress,canFinishCourse,finishScenarioPractice,scenarioTeaching,scenarioGrammarLinks,scenarioCourseList,emptyGrammar,cleanGrammar,createGrammar,emptyParticles,cleanParticles,createParticles,cleanWritingProgress,hasHandwriting,openHandwriting:options=>{writingOptions=options;},lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
 vm.createContext(context);
 const code=readFileSync('dist/app.js','utf8').replace(/^import[^\n]+\n/gm,'');
 vm.runInContext(code,context);
@@ -28,7 +32,7 @@ assert.throws(()=>run('validate({version:2})'));
 assert.equal(run("esc('<script>')"),'&lt;script&gt;');
 run("startLesson('meet')");
 assert.equal(JSON.parse(memory.get('hiyori-v1')).progress.meet.step,0);
-for(const l of lessons){run(`startLesson('${l.id}');moveStep(3);question=0;answer=null;`);for(const q of l.questions){run(`checkAnswer(${JSON.stringify(q.answer)})`);assert.equal(run('answer'),true);run('question++;answer=null;');}}
+for(const l of lessons){run(`startLesson('${l.id}');moveStep(3);`);for(const q of l.questions){run(`checkAnswer(${JSON.stringify(q.answer)})`);assert.equal(run('answer'),true,q.id);const before=run('state.activity[today()]');run(`checkAnswer(${JSON.stringify(q.answer)})`);assert.equal(run('state.activity[today()]'),before);events.click({target:{closest:()=>({dataset:{action:'next-question'}})}});}assert.equal(run('quizDone'),true);assert.equal(run(`state.progress['${l.id}'].best`),l.questions.length);assert.equal(run(`state.progress['${l.id}'].attempts`),1);events.click({target:{closest:()=>({dataset:{action:'next-question'}})}});assert.equal(run(`state.progress['${l.id}'].attempts`),1);}
 run("startLesson('meet');moveStep(4)");
 events.click({target:{closest:()=>({dataset:{action:'complete'}})}});
 assert.equal(run('state.progress.meet.complete'),true);
@@ -90,4 +94,26 @@ run('pendingImport=validate(JSON.parse(JSON.stringify(state)));');
 events.click({target:{closest:()=>({dataset:{action:'confirm-import'}})}});
 assert.equal(JSON.parse(memory.get('hiyori-v1')).grammar.lessons.statement.best,4);
 assert.equal(JSON.parse(memory.get('hiyori-v1')).particles.lessons.wa.best,3);
-console.log('PASS: original learning flows; writing progress; direct kana entry; separate hiragana/katakana resume; reload/import compatibility and invalid resume data.');
+// Guard new scenario completion and link it to concept review without completing grammar lessons.
+run("delete state.progress['scene-museum'];startLesson('scene-museum');moveStep(4);");
+assert.equal(run('step'),0);assert.equal(run("state.progress['scene-museum'].complete"),false);
+const cardsBefore=run('Object.keys(state.cards).length');events.click({target:{closest:()=>({dataset:{action:'complete'}})}});assert.equal(run('Object.keys(state.cards).length'),cardsBefore);
+run('moveStep(2)');assert.ok(node('#app').innerHTML.includes('data-scpoint="2"'));
+events.click({target:{closest:()=>({dataset:{scpoint:'2'}})}});assert.ok(node('#app').innerHTML.includes('這堂是虛構場所的規則'));
+run('moveStep(3)');const activityBefore=run('state.activity[today()]');run("checkAnswer('');checkAnswer(99);");assert.equal(run('answer'),null);assert.equal(run('state.activity[today()]'),activityBefore);
+run('checkAnswer(1)');assert.equal(run('answer'),false);assert.equal(run("state.grammar.skills['permission-form'].needsReview"),true);assert.equal(run('state.grammar.lessons.permission'),undefined);
+assert.ok(node('#app').innerHTML.includes('data-glesson="permission"'));
+events.click({target:{closest:()=>({dataset:{glesson:'permission'}})}});assert.equal(run('page'),'grammar');assert.ok(node('#app').innerHTML.includes('回到情境課程'));
+const attemptsBefore=run("state.grammar.skills['permission-form'].attempts");events.click({target:{closest:()=>({dataset:{start:'scene-museum'}})}});assert.equal(run('page'),'courses');assert.equal(run('question'),0);assert.equal(run("state.grammar.skills['permission-form'].attempts"),attemptsBefore);
+for(const q of lessons.find(l=>l.id==='scene-museum').questions){run(`checkAnswer(${JSON.stringify(q.answer)})`);events.click({target:{closest:()=>({dataset:{action:'next-question'}})}});}
+assert.equal(run('quizDone'),true);assert.equal(run("state.progress['scene-museum'].best"),6);assert.equal(run("state.progress['scene-museum'].complete"),false);
+run('moveStep(4)');events.click({target:{closest:()=>({dataset:{action:'complete'}})}});assert.equal(run("state.progress['scene-museum'].complete"),true);assert.equal(run("state.progress['scene-museum'].best"),6);assert.equal(run("state.grammar.lessons.permission"),undefined);
+assert.equal(run("validate(JSON.parse(JSON.stringify(state))).progress['scene-museum'].best"),6);assert.equal(run('validate(JSON.parse(JSON.stringify(state))).progress.meet.complete'),true);
+assert.equal(run("validate({...state,progress:{meet:{step:4,complete:true}}}).progress.meet.complete"),true);
+assert.equal(run("Object.keys(validate({...state,progress:{meet:{step:4,complete:true}}}).progress).length"),1);
+run("state.lastLesson='scene-weekend';save();");assert.equal(run('validate(JSON.parse(localStorage.getItem("hiyori-v1"))).lastLesson'),'scene-weekend');
+assert.ok(run('courses()').includes('LESSON 13'));assert.ok(!run('courses()').includes('LESSON 013'));
+let spoken;const synthesis={getVoices:()=>[{lang:'ja-JP',voiceURI:'test',name:'Test'}],cancel(){},speak(u){spoken=u;}};
+context.window.speechSynthesis=synthesis;context.speechSynthesis=synthesis;context.SpeechSynthesisUtterance=class{constructor(text){this.text=text;}};
+run("speak('{来|こ}ないでください。')");assert.equal(spoken.text,'来ないでください。');
+console.log('PASS: 13 scenario flows / 63 first-answer submissions; graded completion, shared concept SRS and grammar return links; original learning flows, writing resume, progress import and invalid data.');
