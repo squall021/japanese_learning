@@ -70,7 +70,7 @@ click({ggroup:'g1'});click({gaction:'form'});choose('{帰|かえ}ます');
 assert.ok(html.includes('再看一次句子裡的線索'));assert.equal(progress.skills['groups-tricky'].needsReview,false);assert.equal(progress.skills['masu-godan'].needsReview,true);
 assert.equal(progress.lessons['masu-form'],undefined); // Leaving after three questions is not completion.
 ui.reset();
-const overview=ui.renderPage();assert.ok(overview.includes('12 堂短課'));assert.ok(overview.includes('36 組可點擊例句'));assert.ok(overview.includes('72 道練習'));
+const overview=ui.renderPage();assert.ok(overview.includes('15 堂短課'));assert.ok(overview.includes('45 組可點擊例句'));assert.ok(overview.includes('90 道練習'));
 const index=readFileSync('dist/index.html','utf8');assert.ok(index.includes('./grammar/verb-guide.css'));
-assert.equal(grammarLessons.filter(l=>l.guide).length,6);
+assert.equal(grammarLessons.filter(l=>l.guide).length,9);
 console.log('PASS: 24 reviewed verbs / nine godan endings; all groups and exceptions; 来る readings; 216 basic illustrated guide states; plain/polite examples; classification/form mistakes tracked separately; interrupted and duplicate submission guards; old/new backups.');
