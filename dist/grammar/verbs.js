@@ -44,7 +44,7 @@ export const verbCards=[
   {id:'study',jp:'{勉強|べんきょう}する',meaning:'學習',group:'g3',masu:'{勉強|べんきょう}します',nai:'{勉強|べんきょう}しない',te:'{勉強|べんきょう}して',phrase:'{日本語|にほんご}を',positive:'學日文',negative:'不學日文',scene:'book'},
   {id:'come',jp:'{来|く}る',meaning:'來',group:'g3',masu:'{来|き}ます',nai:'{来|こ}ない',te:'{来|き}て',phrase:'ここに',positive:'來這裡',negative:'不來這裡',scene:'home',exception:'漢字仍是「来」，讀音會變：くる → きます → こない。'},
   {id:'marry',jp:'{結婚|けっこん}する',meaning:'結婚',group:'g3',masu:'{結婚|けっこん}します',nai:'{結婚|けっこん}しない',te:'{結婚|けっこん}して',phrase:'',positive:'結婚',negative:'不結婚',scene:'home'}
-];
+].map(v=>({...v,ta:v.te.replace(/て$/,'た').replace(/で$/,'だ')}));
 export const verbById=id=>verbCards.find(v=>v.id===id);
 // Only these reviewed combinations appear in request/ています guides.
 export const requestUses={
@@ -64,6 +64,7 @@ export const iruUses={
 };
 export const guideVerbs=mode=>verbCards.filter(v=>mode==='request'?Object.hasOwn(requestUses,v.id):mode==='iru'?Object.hasOwn(iruUses,v.id):true);
 export function verbChange(v,mode){
+  if(mode==='ta')return {target:v.ta,special:true,note:v.id==='go'?'行く → 行って → 行った，這一組保留特別音變。':v.id==='come'?'来る讀くる，来て讀きて，来た讀きた。':'沿用て形的變化：最後的「て」換成「た」，「で」換成「だ」。'};
   if(mode==='groups')return {note:`「${v.meaning}」這個動詞屬於${verbGroups[v.group].label}。先記路線，後兩課再練怎麼變。`,target:v.masu};
   if(mode==='te'){
     if(v.id==='go')return {note:'「行く」是特別的一組：直接記「行く → 行って」。',target:v.te,special:true};

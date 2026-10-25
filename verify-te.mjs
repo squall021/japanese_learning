@@ -64,5 +64,5 @@ assert.equal(p.skills['iru-progress'].needsReview,true);click({gaction:'next'});
 choose('只表示說話當下正在學，不能用來說習慣。');assert.ok(html.includes('不只有正在進行一種意思'));
 assert.equal(p.skills['iru-context'].needsReview,true);
 assert.equal(p.lessons['te-iru'],undefined);
-assert.equal(grammarLessons.filter(l=>l.guide).length,9);
+assert.equal(grammarLessons.filter(l=>l.guide).length,12);
 console.log('PASS: all 24 te forms and 行く/来る exceptions; 129 new guide states; only 12 reviewed requests and 7 contextual ています examples; progress/habit/result timelines; bare-form rendering; twelve-lesson numbering; context mistakes, accepted word order and backup compatibility.');

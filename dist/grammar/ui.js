@@ -4,6 +4,7 @@ import {particleText as text,plainJapanese} from '../particles/ui.js';
 import {verbGroups,verbById,verbChange,guideVerbs} from './verbs.js';
 import {verbGuide} from './verb-guide.js';
 import {ruleModes,ruleWords,ruleGuide} from './rules.js';
+import {bridgeModes,bridgeVerbs,bridgeGuide} from './bridge.js';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const roles={topic:'話題',particle:'助詞',noun:'說明的名詞',ending:'句尾',question:'疑問助詞',object:'動作對象',place:'場所',time:'時間',verb:'動詞（ます前）',adjective:'形容詞',change:'變化的部分',adverb:'方式（副詞）',punctuation:'標點'};
@@ -13,10 +14,11 @@ const heading=(eyebrow,title,sub)=>`<div class="g-heading"><span class="eyebrow"
 const action=(label,id,cls='primary',disabled=false)=>`<button class="${cls}" data-gaction="${id}" ${disabled?'disabled':''}>${label}</button>`;
 
 export function createGrammar(api){
-  let view='overview',lessonId=null,exampleIndex=0,tokenIndex=0,session=null,guideWord='read',guideStep=0,guideIntent=null;
+  let view='overview',lessonId=null,exampleIndex=0,tokenIndex=0,session=null,guideWord='read',guideStep=0,guideIntent=null,guideVariant=null;
   const progress=()=>api.getProgress();
   const lesson=()=>grammarLessons.find(l=>l.id===lessonId);
-  const guidePool=mode=>Object.hasOwn(ruleModes,mode)?ruleWords:guideVerbs(mode);
+  const guidePool=mode=>Object.hasOwn(bridgeModes,mode)?bridgeVerbs(mode):Object.hasOwn(ruleModes,mode)?ruleWords:guideVerbs(mode);
+  const renderGuide=l=>Object.hasOwn(bridgeModes,l.guide)?bridgeGuide(l.guide,guideWord,guideStep,guideVariant):Object.hasOwn(ruleModes,l.guide)?ruleGuide(l.guide,guideWord,guideStep,guideIntent||l.guide):verbGuide(l.guide,guideWord,guideStep);
   function refresh(focus='#g-title',top=false){
     api.render();document.querySelector(focus)?.focus({preventScroll:true});if(top)window.scrollTo(0,0);
   }
@@ -34,7 +36,7 @@ export function createGrammar(api){
     const l=lesson(),e=l.examples[exampleIndex],part=e.parts[tokenIndex];
     return `${action('← 所有文法課程','overview','back')}${heading(`GRAMMAR ${String(grammarLessons.indexOf(l)+1).padStart(2,'0')} · ${l.symbol}`,l.title,l.subtitle)}
       <section class="g-scene"><span class="eyebrow">IMAGINE THIS</span><h2>把自己放進這個情境</h2><p>${l.scene}</p></section>
-      ${l.guide?(Object.hasOwn(ruleModes,l.guide)?ruleGuide(l.guide,guideWord,guideStep,guideIntent||l.guide):verbGuide(l.guide,guideWord,guideStep)):''}
+      ${l.guide?renderGuide(l):''}
       <div class="g-study-grid"><aside class="g-rule"><span class="eyebrow">TAKE THIS PATTERN WITH YOU</span><h2>先記住這個關係</h2><p>${l.rule}</p><div class="g-formula">${l.pattern}</div><ul>${l.notes.map(n=>`<li>${text(n)}</li>`).join('')}</ul></aside>
       <section class="g-breakdown"><div class="section-title"><h2>一句話，一塊一塊看懂</h2></div><p class="muted">選個情境，再點詞塊，看看它在本句的作用。</p><div class="g-example-tabs" role="group" aria-label="切換文法例句">${l.examples.map((ex,i)=>`<button data-gexample="${i}" aria-pressed="${i===exampleIndex}">${String(i+1).padStart(2,'0')} ${ex.scene}</button>`).join('')}</div>
       <div class="g-token-sentence" lang="ja">${e.parts.map((t,i)=>`<button class="g-token g-role-${t.role}" data-gtoken="${i}" aria-pressed="${i===tokenIndex}" aria-label="${esc(plainJapanese(t.jp))}：${roles[t.role]}">${text(t.jp)}<small>${roles[t.role]}</small></button>`).join('')}<span>。</span></div><p class="g-translation">${e.zh} ${speakButton(exampleSentence(e))}</p>
@@ -88,16 +90,17 @@ export function createGrammar(api){
     api.changed(true);refresh('.g-feedback');document.querySelector('.g-feedback')?.scrollIntoView({block:'nearest',behavior:'smooth'});
   }
   return {
-    reset(){view='overview';lessonId=null;session=null;exampleIndex=0;tokenIndex=0;guideWord='read';guideStep=0;guideIntent=null;},
+    reset(){view='overview';lessonId=null;session=null;exampleIndex=0;tokenIndex=0;guideWord='read';guideStep=0;guideIntent=null;guideVariant=null;},
     renderPage(){return `<div class="grammar">${view==='overview'?overview():view==='study'?study():view==='question'?questionPage():result()}</div>`;},
     handle(b){
       const d=b.dataset;
-      if(d.glesson){if(!grammarLessons.some(l=>l.id===d.glesson))return true;api.navigate();lessonId=d.glesson;exampleIndex=0;tokenIndex=0;guideWord=guidePool(lesson().guide)[0].id;guideStep=0;guideIntent=null;session=null;view='study';refresh('#g-title',true);return true;}
+      if(d.glesson){if(!grammarLessons.some(l=>l.id===d.glesson))return true;api.navigate();lessonId=d.glesson;exampleIndex=0;tokenIndex=0;guideWord=guidePool(lesson().guide)[0].id;guideStep=0;guideIntent=null;guideVariant=null;session=null;view='study';refresh('#g-title',true);return true;}
       if(d.gintent){if(view==='study'&&Object.hasOwn(ruleModes,lesson().guide)&&guideStep===2&&Object.hasOwn(ruleModes,d.gintent)){api.stopSpeech();guideIntent=d.gintent;refresh(`[data-gintent="${guideIntent}"]`);}return true;}
+      if(d.gbridge){if(view==='study'&&Object.hasOwn(bridgeModes,lesson().guide)&&guideStep===2&&bridgeModes[lesson().guide].variants.includes(d.gbridge)){api.stopSpeech();guideVariant=d.gbridge;refresh(`[data-gbridge="${guideVariant}"]`);}return true;}
       if(d.gvgroup||d.gvword||d.gvstep!==undefined){
         if(view!=='study'||!lesson().guide)return true;api.stopSpeech();
-        if(d.gvgroup){if(!Object.hasOwn(verbGroups,d.gvgroup))return true;const first=guidePool(lesson().guide).find(v=>v.group===d.gvgroup);if(!first)return true;guideWord=first.id;guideStep=0;guideIntent=null;}
-        if(d.gvword){if(!guidePool(lesson().guide).some(v=>v.id===d.gvword))return true;guideWord=d.gvword;guideStep=0;guideIntent=null;}
+        if(d.gvgroup){if(!Object.hasOwn(verbGroups,d.gvgroup))return true;const first=guidePool(lesson().guide).find(v=>v.group===d.gvgroup);if(!first)return true;guideWord=first.id;guideStep=0;guideIntent=null;guideVariant=null;}
+        if(d.gvword){if(!guidePool(lesson().guide).some(v=>v.id===d.gvword))return true;guideWord=d.gvword;guideStep=0;guideIntent=null;guideVariant=null;}
         if(d.gvstep!==undefined){const n=Number(d.gvstep);if(!Number.isInteger(n)||n<0||n>2)return true;guideStep=n;}
         refresh(d.gvgroup?`[data-gvgroup="${d.gvgroup}"]`:d.gvword?`[data-gvword="${guideWord}"]`:`[data-gvstep="${guideStep}"]`);return true;
       }
