@@ -24,6 +24,8 @@
 | `v1.5.0` | 六堂基礎文法、18 組拆句例句、36 題練習與十二個概念複習 |
 | `checkpoint-20261025-2141-before-verb-foundations` | 加入第 7～9 課動詞圖解與分步活用前的 v1.5.0 |
 | `v1.6.0` | 九堂文法、動詞分類／ます形／ない形、21 個動詞圖說與分步活用 |
+| `checkpoint-20261025-2218-before-te-lessons` | 加入第 10～12 課前的 v1.6.0 |
+| `v1.7.0` | 十二堂文法、て形／てください／ています、24 動詞與語境時間圖 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
 
@@ -34,6 +36,8 @@ v1.4.0 檢查涵蓋三堂文法課、9 組拆句例句與 18 題練習、合理�
 v1.5.0 檢查擴充至六課 36 題，涵蓋動詞肯定／否定與過去、い／な形容詞的合理否定答案、可替換語序、標音與答案重點標示、六課均衡抽題、十二個概念與舊備份相容。全部既有檢查一併執行；桌面與 390px 手機版驗證拆句、形容詞六題作答、完整答案及重新載入後的完成成績與易錯紀錄。
 
 v1.6.0 檢查涵蓋九課 54 題、21 個動詞與 189 個圖解狀態、九種五段字尾、特殊否定及来る讀音、分類／變化分開保存、分步提交防護、九課均衡抽題與舊備份相容。另以瀏覽器實測圖解切換、第 8 課六題結算與重新載入後的成績，並讀取桌面及手機版的實際內容寬度確認無水平溢位。本次截圖工具逾時，未完成圖片形式的目視核對。
+
+v1.7.0 已通過全部語法與七組自動檢查，涵蓋十二課 72 題、24 動詞的て形及行く／来る例外、限定的請求與ています搭配、進行／習慣／結果時間圖、分步作答與舊備份相容。另實測第 12 課完整六題、錯題回饋與重載成績，以及請求組句。桌面與 390px 手機版完成目視及尺寸檢查，截圖工具已恢復；預覽保存於工作區。
 
 ## 方法一：在 GitHub 重新發布儲存點
 
@@ -54,7 +58,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs

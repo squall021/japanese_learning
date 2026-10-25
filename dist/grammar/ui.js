@@ -1,11 +1,11 @@
 import {grammarLessons,grammarSkills,allGrammarQuestions,exampleSentence,grammarSources} from './data.js';
 import {dueGrammarSkills,grammarQueue,recordGrammarAnswer,finishGrammarLesson,shuffleGrammar} from './model.js';
 import {particleText as text,plainJapanese} from '../particles/ui.js';
-import {verbGroups,verbCards,verbById,verbChange} from './verbs.js';
+import {verbGroups,verbById,verbChange,guideVerbs} from './verbs.js';
 import {verbGuide} from './verb-guide.js';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const roles={topic:'話題',particle:'助詞',noun:'說明的名詞',ending:'句尾',question:'疑問助詞',object:'動作對象',place:'場所',time:'時間',verb:'動詞（ます前）',adjective:'形容詞',change:'變化的部分'};
+const roles={topic:'話題',particle:'助詞',noun:'說明的名詞',ending:'句尾',question:'疑問助詞',object:'動作對象',place:'場所',time:'時間',verb:'動詞（ます前）',adjective:'形容詞',change:'變化的部分',adverb:'方式（副詞）',punctuation:'標點'};
 const types={choice:'情境選答',build:'詞塊組句',transform:'句尾變換',conjugate:'先分組，再變化'};
 const speakButton=(sentence,label='聽完整句子')=>`<button class="g-sound" data-gsound="${esc(plainJapanese(sentence))}" aria-label="${esc(label)}">♪</button>`;
 const heading=(eyebrow,title,sub)=>`<div class="g-heading"><span class="eyebrow">${eyebrow}</span><h1 id="g-title" tabindex="-1">${title}</h1><p>${sub}</p></div>`;
@@ -30,7 +30,7 @@ export function createGrammar(api){
   }
   function study(){
     const l=lesson(),e=l.examples[exampleIndex],part=e.parts[tokenIndex];
-    return `${action('← 所有文法課程','overview','back')}${heading(`GRAMMAR 0${grammarLessons.indexOf(l)+1} · ${l.symbol}`,l.title,l.subtitle)}
+    return `${action('← 所有文法課程','overview','back')}${heading(`GRAMMAR ${String(grammarLessons.indexOf(l)+1).padStart(2,'0')} · ${l.symbol}`,l.title,l.subtitle)}
       <section class="g-scene"><span class="eyebrow">IMAGINE THIS</span><h2>把自己放進這個情境</h2><p>${l.scene}</p></section>
       ${l.guide?verbGuide(l.guide,guideWord,guideStep):''}
       <div class="g-study-grid"><aside class="g-rule"><span class="eyebrow">TAKE THIS PATTERN WITH YOU</span><h2>先記住這個關係</h2><p>${l.rule}</p><div class="g-formula">${l.pattern}</div><ul>${l.notes.map(n=>`<li>${text(n)}</li>`).join('')}</ul></aside>
@@ -42,7 +42,7 @@ export function createGrammar(api){
   }
   function answersFor(q){
     if(q.type==='build')return q.orders.map(order=>order.map(i=>q.parts[i].jp).join('')+'。');
-    if(q.type==='transform'||q.type==='conjugate')return q.answers.map(a=>q.prefix+a+'。');
+    if(q.type==='transform'||q.type==='conjugate')return q.answers.map(a=>q.prefix+a+(q.formOnly?'':'。'));
     return q.answers;
   }
   function builder(q){
@@ -56,10 +56,10 @@ export function createGrammar(api){
       <section class="g-question"><div class="g-question-top"><span>第 ${session.index+1} / ${session.queue.length} 題 · ${types[q.type]}</span><span>${session.score} 題答對</span></div><progress value="${session.index+(answered?1:0)}" max="${session.queue.length}" aria-label="本次文法練習進度"></progress><span class="eyebrow">THE SITUATION</span><h2>${text(q.context)}</h2>
       ${q.type==='transform'||q.type==='conjugate'?`<div class="g-transform-source"><span>${q.sourceLabel||'原句'}</span><p lang="ja">${text(q.source)}</p></div>`:''}
       ${q.type==='conjugate'?groupQuestion(q):''}
-      ${q.type==='transform'||(q.type==='conjugate'&&session.formStage)?`<div class="g-transform-target" lang="ja">${text(q.prefix)}<span class="g-ending-slot">${answered?text(session.selected):'選個說法'}</span>。</div>`:''}
+      ${q.type==='transform'||(q.type==='conjugate'&&session.formStage)?`<div class="g-transform-target" lang="ja">${text(q.prefix)}<span class="g-ending-slot">${answered?text(session.selected):'選個說法'}</span>${q.formOnly?'':'。'}</div>`:''}
       ${q.answers?.length>1?'<p class="g-small-note">本題有多個合理答案，選一個即可。</p>':''}
       ${q.type==='build'?builder(q):q.type==='conjugate'&&!session.formStage?'':`<div class="g-options ${q.type==='transform'||q.type==='conjugate'?'g-ending-options':''}">${session.options.map((option,i)=>`<button data-ganswer="${i}" ${answered?'disabled':''} class="${answered&&q.answers.includes(option)?'g-accepted':''} ${answered&&option===session.selected&&!session.formCorrect?'g-incorrect':''}"><span class="g-choice-letter">${String.fromCharCode(65+i)}</span><span>${text(option)}</span>${answered&&q.answers.includes(option)?'<small>✓ 可接受</small>':answered&&option===session.selected?'<small>你的選擇</small>':''}</button>`).join('')}</div>`}
-      ${answered?`<div class="g-feedback ${correct?'good':'retry'}" tabindex="-1" role="status"><h3>${correct?'✓ 判斷正確':q.type==='conjugate'&&session.formCorrect?'變化正確，分類再看一次':'再看一次句子裡的線索'}</h3>${!correct?`<p>${esc(q.type==='conjugate'&&session.formCorrect?`變化這一步答對了。這次要再留意的是分類：「${plainJapanese(q.source)}」屬於${verbGroups[verbById(q.verbId).group].label}。`:q.type==='build'?q.hint:q.wrong[session.selected])}</p>`:''}<p>${q.why}</p><strong>${q.type==='choice'?'可接受答案':'完整答案'}</strong><div class="g-correct-sentences">${answersFor(q).map((s,i)=>`<div><span>${q.type==='transform'||q.type==='conjugate'?text(q.prefix)+`<mark>${text(q.answers[i])}</mark>。`:text(s)}</span>${q.type!=='choice'?speakButton(s,'播放答案：'+plainJapanese(s)):''}</div>`).join('')}</div>${q.translation?`<p class="g-answer-translation">${q.translation}</p>`:''}${action(session.index===session.queue.length-1?'查看本次成果 →':'下一題 →','next')}</div>`:''}</section>`;
+      ${answered?`<div class="g-feedback ${correct?'good':'retry'}" tabindex="-1" role="status"><h3>${correct?'✓ 判斷正確':q.type==='conjugate'&&session.formCorrect?'變化正確，分類再看一次':'再看一次句子裡的線索'}</h3>${!correct?`<p>${esc(q.type==='conjugate'&&session.formCorrect?`變化這一步答對了。這次要再留意的是分類：「${plainJapanese(q.source)}」屬於${verbGroups[verbById(q.verbId).group].label}。`:q.type==='build'?q.hint:q.wrong[session.selected])}</p>`:''}<p>${q.why}</p><strong>${q.type==='choice'?'可接受答案':q.formOnly?'完成的形式':'完整答案'}</strong><div class="g-correct-sentences">${answersFor(q).map((s,i)=>`<div><span>${q.type==='transform'||q.type==='conjugate'?text(q.prefix)+`<mark>${text(q.answers[i])}</mark>${q.formOnly?'':'。'}`:text(s)}</span>${q.type!=='choice'?speakButton(s,'播放答案：'+plainJapanese(s)):''}</div>`).join('')}</div>${q.translation?`<p class="g-answer-translation">${q.translation}</p>`:''}${action(session.index===session.queue.length-1?'查看本次成果 →':'下一題 →','next')}</div>`:''}</section>`;
   }
   function groupQuestion(q){
     const v=verbById(q.verbId),chosen=session.groupSelected!==null;
@@ -93,8 +93,8 @@ export function createGrammar(api){
       if(d.glesson){if(!grammarLessons.some(l=>l.id===d.glesson))return true;api.navigate();lessonId=d.glesson;exampleIndex=0;tokenIndex=0;guideWord='read';guideStep=0;session=null;view='study';refresh('#g-title',true);return true;}
       if(d.gvgroup||d.gvword||d.gvstep!==undefined){
         if(view!=='study'||!lesson().guide)return true;api.stopSpeech();
-        if(d.gvgroup){if(!Object.hasOwn(verbGroups,d.gvgroup))return true;guideWord=verbCards.find(v=>v.group===d.gvgroup).id;guideStep=0;}
-        if(d.gvword){if(!verbById(d.gvword))return true;guideWord=d.gvword;guideStep=0;}
+        if(d.gvgroup){if(!Object.hasOwn(verbGroups,d.gvgroup))return true;const first=guideVerbs(lesson().guide).find(v=>v.group===d.gvgroup);if(!first)return true;guideWord=first.id;guideStep=0;}
+        if(d.gvword){if(!guideVerbs(lesson().guide).some(v=>v.id===d.gvword))return true;guideWord=d.gvword;guideStep=0;}
         if(d.gvstep!==undefined){const n=Number(d.gvstep);if(!Number.isInteger(n)||n<0||n>2)return true;guideStep=n;}
         refresh(d.gvgroup?`[data-gvgroup="${d.gvgroup}"]`:d.gvword?`[data-gvword="${guideWord}"]`:`[data-gvstep="${guideStep}"]`);return true;
       }

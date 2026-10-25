@@ -6,3 +6,4 @@
 .g-role-object{background:#f1eadc;color:#8b7555}.g-role-place,.g-role-time{background:#e6edf0;color:#536e7e}.g-role-verb{background:#e5eddf;color:#59734f}.g-role-adjective{background:#f1e8dc;color:#916d4d}
 
 .g-built-part{display:inline-flex;align-items:center;gap:2px;max-width:100%}
+.g-role-adverb{background:#e6edf0;color:#536e7e}.g-role-punctuation{background:#f3f2e9;color:#889075}

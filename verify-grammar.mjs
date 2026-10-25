@@ -6,10 +6,10 @@ import {createGrammar} from './dist/grammar/ui.js';
 import {plainJapanese,particleText} from './dist/particles/ui.js';
 import {verbById} from './dist/grammar/verbs.js';
 
-assert.equal(grammarLessons.length,9);assert.equal(allGrammarQuestions.length,54);
-assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,54);
-assert.equal(Object.keys(grammarSkills).length,18);
-assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:21,build:15,transform:14,conjugate:4});
+assert.equal(grammarLessons.length,12);assert.equal(allGrammarQuestions.length,72);
+assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,72);
+assert.equal(Object.keys(grammarSkills).length,24);
+assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:28,build:19,transform:19,conjugate:6});
 for(const l of grammarLessons){
   assert.equal(l.examples.length,3);assert.equal(l.questions.length,6);assert.ok(l.notes.length>=3);
   for(const e of l.examples){
@@ -66,7 +66,7 @@ const bad=cleanGrammar({lessons:{statement:{complete:'true',best:999,attempts:-1
 assert.deepEqual(bad.lessons.statement,{complete:false,best:6,attempts:0});assert.equal(bad.lessons.unknown,undefined);
 assert.deepEqual(bad.skills['negative-form'],{attempts:3,correct:3,streak:3,needsReview:false,due:0});assert.equal(bad.skills.unknown,undefined);
 for(const random of [()=>0,()=>.4,()=>.99]){
-  const mixed=grammarQueue('mixed',emptyGrammar(),random,now);assert.equal(mixed.length,9);assert.equal(new Set(mixed.map(q=>q.id)).size,9);
+  const mixed=grammarQueue('mixed',emptyGrammar(),random,now);assert.equal(mixed.length,12);assert.equal(new Set(mixed.map(q=>q.id)).size,12);
   for(const l of grammarLessons)assert.equal(mixed.filter(q=>q.lesson===l.id).length,1);
   const review=grammarQueue('review',p,random,now+3*86400000);assert.equal(review.length,2);assert.equal(new Set(review.map(q=>q.id)).size,2);assert.ok(review.every(q=>q.use==='question-form'));
 }
@@ -115,7 +115,7 @@ for(const l of grammarLessons){
   assert.deepEqual(progress.lessons[l.id],{complete:true,best:6,attempts:1});click({gaction:'next'});assert.equal(progress.lessons[l.id].attempts,1);
   assert.ok(html.includes('本次答對題數'));
 }
-assert.equal(saved,54);click({gaction:'retry'});assert.ok(html.includes('把「不做」，換成ない形'));
+assert.equal(saved,72);click({gaction:'retry'});assert.ok(html.includes('現在做什麼？也看看持續的狀態'));
 ui.reset();click({glesson:'statement'});click({gaction:'practice'});
 choose('学生ですか');assert.ok(html.includes('這裡要介紹自己的身分'));
 assert.equal(progress.skills['statement-meaning'].needsReview,true);click({gaction:'next'});
@@ -135,4 +135,4 @@ for(const id of ['ve-1','ve-2','ve-3','ve-4','ve-5']){
   }
   assert.ok(html.includes('✓ 判斷正確'));click({gaction:'next'});
 }
-console.log('PASS: 9 grammar lessons / 27 annotated examples / 54 questions; conjugation stage guards; verb/adjective forms and alternatives; flexible word order; furigana; first-answer scoring; balanced nine-lesson mixed practice; review scheduling and backup compatibility.');
+console.log('PASS: 12 grammar lessons / 36 annotated examples / 72 questions; conjugation stage guards; verb/adjective forms and alternatives; flexible word order; furigana; first-answer scoring; balanced twelve-lesson mixed practice; review scheduling and backup compatibility.');

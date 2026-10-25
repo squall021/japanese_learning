@@ -19,14 +19,15 @@ const golden=[
   ['see','見る','g2','見ます','見ない'],['wake','起きる','g2','起きます','起きない'],
   ['borrow','借りる','g2','借ります','借りない'],['sleep','寝る','g2','寝ます','寝ない'],
   ['do','する','g3','します','しない'],['study','勉強する','g3','勉強します','勉強しない'],
-  ['come','来る','g3','来ます','来ない']
+  ['come','来る','g3','来ます','来ない'],['drink','飲む','g1','飲みます','飲まない'],
+  ['go','行く','g1','行きます','行かない'],['marry','結婚する','g3','結婚します','結婚しない']
 ];
-assert.equal(verbCards.length,21);assert.equal(new Set(verbCards.map(v=>v.id)).size,21);
+assert.equal(verbCards.length,24);assert.equal(new Set(verbCards.map(v=>v.id)).size,24);
 assert.equal(godanRows.length,9);assert.equal(new Set(godanRows.map(r=>r[0])).size,9);
 for(const [id,jp,group,masu,nai] of golden){
   const v=verbById(id);assert.ok(v);assert.equal(plainJapanese(v.jp),jp);assert.equal(v.group,group);
   assert.equal(plainJapanese(v.masu),masu);assert.equal(plainJapanese(v.nai),nai);
-  assert.ok(v.meaning&&v.phrase&&v.positive&&v.negative);
+  assert.ok(v.meaning&&typeof v.phrase==='string'&&v.positive&&v.negative);
   for(const mode of ['groups','masu','nai'])for(const step of [0,1,2]){
     const html=verbGuide(mode,id,step);assert.ok(!html.includes('undefined'));assert.ok(!/\{[^{}]+\|[^{}]+\}/.test(html));
     assert.ok(html.includes('動詞變化圖說'));assert.ok(html.includes('g-verb-illustration'));
@@ -69,7 +70,7 @@ click({ggroup:'g1'});click({gaction:'form'});choose('{帰|かえ}ます');
 assert.ok(html.includes('再看一次句子裡的線索'));assert.equal(progress.skills['groups-tricky'].needsReview,false);assert.equal(progress.skills['masu-godan'].needsReview,true);
 assert.equal(progress.lessons['masu-form'],undefined); // Leaving after three questions is not completion.
 ui.reset();
-const overview=ui.renderPage();assert.ok(overview.includes('9 堂短課'));assert.ok(overview.includes('27 組可點擊例句'));assert.ok(overview.includes('54 道練習'));
+const overview=ui.renderPage();assert.ok(overview.includes('12 堂短課'));assert.ok(overview.includes('36 組可點擊例句'));assert.ok(overview.includes('72 道練習'));
 const index=readFileSync('dist/index.html','utf8');assert.ok(index.includes('./grammar/verb-guide.css'));
-assert.equal(grammarLessons.filter(l=>l.guide).length,3);
-console.log('PASS: 21 reviewed verbs / nine godan endings; all groups and exceptions; 来る readings; 189 illustrated guide states; plain/polite examples; classification/form mistakes tracked separately; interrupted and duplicate submission guards; old/new backups.');
+assert.equal(grammarLessons.filter(l=>l.guide).length,6);
+console.log('PASS: 24 reviewed verbs / nine godan endings; all groups and exceptions; 来る readings; 216 basic illustrated guide states; plain/polite examples; classification/form mistakes tracked separately; interrupted and duplicate submission guards; old/new backups.');
