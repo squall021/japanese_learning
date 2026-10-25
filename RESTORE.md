@@ -18,10 +18,14 @@
 | `v1.2.0` | 六堂助詞課、情境練習、混合測驗與依用法安排的易錯複習 |
 | `checkpoint-20261024-2252-before-variations` | 加入句型變化練習前的 v1.2.0 |
 | `v1.3.0` | 299 種句型變化組合、六課與單課加強、近期避重複及變化題複習 |
+| `checkpoint-20261025-0958-before-grammar` | 加入基礎文法教學前的 v1.3.0 |
+| `v1.4.0` | 三堂基礎文法、9 組點擊拆句例句、18 題選答／組句／句尾變換與概念複習 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
 
 v1.3.0 已通過全部語法與學習流程檢查，包括 299 種組合的完整性、抽題分配、近期避重複、舊備份相容、答題紀錄與用法複習。另以桌面與 390px 手機版瀏覽器驗證六題作答、單課重練、生詞提示、多重答案與重新載入後的錯題紀錄。
+
+v1.4.0 檢查涵蓋三堂文法課、9 組拆句例句與 18 題練習、合理的否定替代答案、詞塊移回與重排、未完成／重複提交防護、六題結算、概念排程與備份相容；原有五十音、92 字手寫、情境課程、助詞及 299 種變化題的檢查一併執行。另以桌面及 390px 手機版實測拆句、否定句六題作答、組句與句尾變換，以及重新載入後的完成分數與易錯紀錄。
 
 ## 方法一：在 GitHub 重新發布儲存點
 
@@ -42,7 +46,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs
