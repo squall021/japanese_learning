@@ -76,7 +76,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs verify-foundations.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs
