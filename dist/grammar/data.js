@@ -1,4 +1,5 @@
 import {verbById,verbChange} from './verbs.js';
+import {foundationLessons,foundationSkills} from './foundations-data.js';
 const token=(jp,role,note)=>({jp,role,note});
 const topic=(jp,meaning)=>token(jp,'topic',`${meaning}，是這句話談論的對象。`);
 const wa=()=>token('は','particle','把前面的對象提出來當話題。這個助詞寫作「は」，讀作「わ」。');
@@ -20,6 +21,7 @@ export const exampleSentence=e=>e.parts.map(p=>p.jp).join('')+'。';
 const example=(scene,parts,zh)=>({scene,parts,zh});
 const negEndings=['じゃありません','ではありません','じゃないです','ではないです'];
 export const grammarSkills={
+  ...foundationSkills,
   'statement-meaning':'名詞句・說明身分與類別','statement-order':'名詞句・話題與句子順序',
   'negative-meaning':'否定句・理解「不是」','negative-form':'否定句・名詞句尾變化',
   'question-form':'疑問句・「ですか」的問法','question-reply':'疑問句・依事實回答',
@@ -390,5 +392,6 @@ export const grammarLessons=[
     ]
   }
 ];
+grammarLessons.push(...foundationLessons);
 export const allGrammarQuestions=grammarLessons.flatMap(l=>l.questions.map(q=>({...q,lesson:l.id})));
 export const grammarSources=[['東京外國語大學：普通形與た形','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/038.html'],['東京外國語大學：たいです與否定','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/067.html'],['東京外國語大學：ませんか（邀請）','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/062.html'],['東京外國語大學：ましょう','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/063.html'],['東京外國語大學：てもいいです（許可）','https://www.coelang.tufs.ac.jp/ja/zt/gmod/contents/explanation/058.html'],['東京外國語大學：ないでください','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/060.html'],['東京外國語大學：てはいけません','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/059.html'],['國際交流基金《いろどり》文法筆記','https://www.irodori.jpf.go.jp/assets/data/Grammar_all.pdf'],['東京外國語大學：動詞的三種類型','https://www.coelang.tufs.ac.jp/modules/ja/gmod/contents_m/explanation/039.html'],['國際交流基金：ない形與字尾對照','https://www.kyozai.jpf.go.jp/kyozai/material/BTS00065/ja/render.do'],['東京外國語大學：て形音變','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/043.html'],['國際交流基金：てください','https://www.kyozai.jpf.go.jp/kyozai/material/BTS00149/ja/render.do'],['國際交流基金：ています（文法解說文24）','https://www.jpf.go.jp/j/urawa/j_rsorcs/textbook/dl/setsumei/setsumei_all.pdf']];

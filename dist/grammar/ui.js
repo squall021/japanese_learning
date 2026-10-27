@@ -5,16 +5,18 @@ import {verbGroups,verbById,verbChange,guideVerbs} from './verbs.js';
 import {verbGuide} from './verb-guide.js';
 import {ruleModes,ruleWords,ruleGuide} from './rules.js';
 import {bridgeModes,bridgeVerbs,bridgeGuide} from './bridge.js';
+import {foundationDecks,foundationGuide} from './foundations.js';
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const roles={topic:'話題',particle:'助詞',noun:'說明的名詞',ending:'句尾',question:'疑問助詞',object:'動作對象',place:'場所',time:'時間',verb:'動詞（ます前）',adjective:'形容詞',change:'變化的部分',adverb:'方式（副詞）',punctuation:'標點'};
 const types={choice:'情境選答',build:'詞塊組句',transform:'句尾變換',conjugate:'先分組，再變化'};
+roles.action='動詞';
 const speakButton=(sentence,label='聽完整句子')=>`<button class="g-sound" data-gsound="${esc(plainJapanese(sentence))}" aria-label="${esc(label)}">♪</button>`;
 const heading=(eyebrow,title,sub)=>`<div class="g-heading"><span class="eyebrow">${eyebrow}</span><h1 id="g-title" tabindex="-1">${title}</h1><p>${sub}</p></div>`;
 const action=(label,id,cls='primary',disabled=false)=>`<button class="${cls}" data-gaction="${id}" ${disabled?'disabled':''}>${label}</button>`;
 
 export function createGrammar(api){
-  let view='overview',lessonId=null,exampleIndex=0,tokenIndex=0,session=null,guideWord='read',guideStep=0,guideIntent=null,guideVariant=null;
+  let view='overview',lessonId=null,exampleIndex=0,tokenIndex=0,session=null,guideWord='read',guideStep=0,guideIntent=null,guideVariant=null,foundationCard=0;
   const progress=()=>api.getProgress();
   const lesson=()=>grammarLessons.find(l=>l.id===lessonId);
   const guidePool=mode=>Object.hasOwn(bridgeModes,mode)?bridgeVerbs(mode):Object.hasOwn(ruleModes,mode)?ruleWords:guideVerbs(mode);
@@ -27,7 +29,7 @@ export function createGrammar(api){
     return `${heading('BUILD A SENTENCE, SHARE AN IDEA','把詞語，變成你想說的話。','從介紹身分，到日常行動與感受。一次看懂一個變化。')}
       <section class="g-hero"><div><span class="eyebrow">JAPANESE FOR YOUR EVERYDAY</span><h2>把今天的日常，<br>說成日文。</h2><p>${grammarLessons.length} 堂短課 · ${grammarLessons.reduce((n,l)=>n+l.examples.length,0)} 組可點擊例句 · ${allGrammarQuestions.length} 道練習</p><div class="g-progress"><span>已完成 ${done} / ${grammarLessons.length} 課</span><progress max="${grammarLessons.length}" value="${done}" aria-label="基礎文法課程完成數"></progress></div></div><div class="g-hero-sentences" aria-hidden="true"><span>学生<b>です</b>。</span><span>本を読み<b>ます</b>。</span><span>きのう、読み<b>ました</b>。</span></div></section>
       <div class="section-title"><h2>先理解，再親手組一句</h2><span>每課約 5–12 分鐘 · 可自由選課</span></div>
-      <div class="g-course-grid">${grammarLessons.map((l,i)=>{const r=p.lessons[l.id];return `<button class="g-course" data-glesson="${l.id}"><div class="g-course-top"><span class="eyebrow">GRAMMAR ${String(i+1).padStart(2,'0')}</span><span class="pill">${r?.complete?'✓ 已完成':'6 題練習'}</span></div><span class="g-course-symbol" lang="ja">${l.symbol}</span><h3>${l.title}</h3><p>${l.goal}</p><span class="g-course-bottom">${r?.complete?`最佳 ${r.best} / 6 題`:l.guide==='groups'?'看圖解 → 認路線 → 練判斷':l.guide?'看圖解 → 看變化 → 練組句':'看情境 → 拆句 → 組句'} <span aria-hidden="true">↗</span></span></button>`;}).join('')}</div>
+      <div class="g-course-grid">${grammarLessons.map((l,i)=>{const r=p.lessons[l.id];return `<button class="g-course" data-glesson="${l.id}"><div class="g-course-top"><span class="eyebrow">GRAMMAR ${String(i+1).padStart(2,'0')}</span><span class="pill">${r?.complete?'✓ 已完成':'6 題練習'}</span></div><span class="g-course-symbol" lang="ja">${l.symbol}</span><h3>${l.title}</h3><p>${l.goal}</p><span class="g-course-bottom">${r?.complete?`最佳 ${r.best} / 6 題`:l.guide==='groups'?'看圖解 → 認路線 → 練判斷':l.guide||l.foundation?'看圖解 → 看變化 → 練組句':'看情境 → 拆句 → 組句'} <span aria-hidden="true">↗</span></span></button>`;}).join('')}</div>
       <div class="g-practice-grid"><section><span class="eyebrow">PUT IT TOGETHER</span><h3>換個情境，再想一次</h3><p>每課隨機抽一題，共 ${grammarLessons.length} 題，把身分、行動與描述放回情境裡。</p>${action(`開始 ${grammarLessons.length} 題綜合練習 →`,'mixed','secondary')}</section><section><span class="eyebrow">REVISIT & REMEMBER</span><h3>${due.length?`${due.length} 個概念，等你再見一次`:'讓學過的句型，慢慢留下來'}</h3><p>${due.length?'每個待複習概念抽兩題，重新留意句子裡的線索。':'答錯的概念會優先加入複習，答對後也會安排間隔複習。'}</p>${action(due.length?'複習易錯與到期概念 →':'目前沒有待複習概念','review','secondary',!due.length)}</section></div>
       ${weak.length?`<section class="g-weak"><h2>再留意這幾個地方</h2><p>同一概念連續答對兩次後移出易錯清單，之後仍會間隔複習。</p><div class="button-row">${weak.map(id=>`<button class="secondary" data-glesson="${allGrammarQuestions.find(q=>q.use===id).lesson}">${grammarSkills[id]} · 回看教學</button>`).join('')}</div></section>`:''}
       <details class="g-sources"><summary>教材與複習方式</summary><p>本站編寫繁體中文解說與練習，參照入門教材核對基本用法。完成表示已做完本課六題，最佳分數保留每組練習首次送出答案的結果。</p><p>答錯概念立即加入複習；答對後依連續答對次數安排約 1、3、7、14 天後複習。練習題取自這 ${grammarLessons.length} 課的 ${allGrammarQuestions.length} 題；綜合練習會隨機抽題。作答即時保存，離開後可重新開始一組。進度可於「我的學習」匯出。</p>${grammarSources.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener">${label} ↗</a>`).join('')}</details>`;
@@ -36,7 +38,7 @@ export function createGrammar(api){
     const l=lesson(),e=l.examples[exampleIndex],part=e.parts[tokenIndex];
     return `${action('← 所有文法課程','overview','back')}${heading(`GRAMMAR ${String(grammarLessons.indexOf(l)+1).padStart(2,'0')} · ${l.symbol}`,l.title,l.subtitle)}
       <section class="g-scene"><span class="eyebrow">IMAGINE THIS</span><h2>把自己放進這個情境</h2><p>${l.scene}</p></section>
-      ${l.guide?renderGuide(l):''}
+      ${l.guide?renderGuide(l):''}${l.foundation?foundationGuide(l.id,foundationCard):''}
       <div class="g-study-grid"><aside class="g-rule"><span class="eyebrow">TAKE THIS PATTERN WITH YOU</span><h2>先記住這個關係</h2><p>${l.rule}</p><div class="g-formula">${l.pattern}</div><ul>${l.notes.map(n=>`<li>${text(n)}</li>`).join('')}</ul></aside>
       <section class="g-breakdown"><div class="section-title"><h2>一句話，一塊一塊看懂</h2></div><p class="muted">選個情境，再點詞塊，看看它在本句的作用。</p><div class="g-example-tabs" role="group" aria-label="切換文法例句">${l.examples.map((ex,i)=>`<button data-gexample="${i}" aria-pressed="${i===exampleIndex}">${String(i+1).padStart(2,'0')} ${ex.scene}</button>`).join('')}</div>
       <div class="g-token-sentence" lang="ja">${e.parts.map((t,i)=>`<button class="g-token g-role-${t.role}" data-gtoken="${i}" aria-pressed="${i===tokenIndex}" aria-label="${esc(plainJapanese(t.jp))}：${roles[t.role]}">${text(t.jp)}<small>${roles[t.role]}</small></button>`).join('')}<span>。</span></div><p class="g-translation">${e.zh} ${speakButton(exampleSentence(e))}</p>
@@ -94,7 +96,8 @@ export function createGrammar(api){
     renderPage(){return `<div class="grammar">${view==='overview'?overview():view==='study'?study():view==='question'?questionPage():result()}</div>`;},
     handle(b){
       const d=b.dataset;
-      if(d.glesson){if(!grammarLessons.some(l=>l.id===d.glesson))return true;api.navigate();lessonId=d.glesson;exampleIndex=0;tokenIndex=0;guideWord=guidePool(lesson().guide)[0].id;guideStep=0;guideIntent=null;guideVariant=null;session=null;view='study';refresh('#g-title',true);return true;}
+      if(d.glesson){if(!grammarLessons.some(l=>l.id===d.glesson))return true;api.navigate();lessonId=d.glesson;foundationCard=0;exampleIndex=0;tokenIndex=0;guideWord=guidePool(lesson().guide)[0].id;guideStep=0;guideIntent=null;guideVariant=null;session=null;view='study';refresh('#g-title',true);return true;}
+      if(d.gfoundation!==undefined){if(view==='study'&&lesson().foundation){const n=Number(d.gfoundation);if(Number.isInteger(n)&&foundationDecks[lessonId].cards[n]){api.stopSpeech();foundationCard=n;refresh(`[data-gfoundation="${n}"]`);}}return true;}
       if(d.gintent){if(view==='study'&&Object.hasOwn(ruleModes,lesson().guide)&&guideStep===2&&Object.hasOwn(ruleModes,d.gintent)){api.stopSpeech();guideIntent=d.gintent;refresh(`[data-gintent="${guideIntent}"]`);}return true;}
       if(d.gbridge){if(view==='study'&&Object.hasOwn(bridgeModes,lesson().guide)&&guideStep===2&&bridgeModes[lesson().guide].variants.includes(d.gbridge)){api.stopSpeech();guideVariant=d.gbridge;refresh(`[data-gbridge="${guideVariant}"]`);}return true;}
       if(d.gvgroup||d.gvword||d.gvstep!==undefined){

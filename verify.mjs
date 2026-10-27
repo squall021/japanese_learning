@@ -11,9 +11,9 @@ import {acceptedScenarioAnswers,scenarioAnswerMarkup,recordScenarioAnswer,cleanC
 import {scenarioTeaching,scenarioGrammarLinks,scenarioCourseList} from './dist/scenarios/ui.js';
 import {particleText,plainJapanese} from './dist/particles/ui.js';
 import {lessons,legacyLessons,allWords,kanaRows,comboRows} from './dist/data.js';
-assert.equal(lessons.length,13);assert.equal(legacyLessons.length,5);
-assert.equal(allWords.length,78);
-assert.equal(new Set(allWords.map(w=>w.id)).size,78);
+assert.equal(lessons.length,16);assert.equal(legacyLessons.length,5);
+assert.equal(allWords.length,96);
+assert.equal(new Set(allWords.map(w=>w.id)).size,96);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='basic').length,46);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='voiced').length,25);
 assert.equal(comboRows.flat().length,33);
@@ -116,4 +116,4 @@ assert.ok(run('courses()').includes('LESSON 13'));assert.ok(!run('courses()').in
 let spoken;const synthesis={getVoices:()=>[{lang:'ja-JP',voiceURI:'test',name:'Test'}],cancel(){},speak(u){spoken=u;}};
 context.window.speechSynthesis=synthesis;context.speechSynthesis=synthesis;context.SpeechSynthesisUtterance=class{constructor(text){this.text=text;}};
 run("speak('{来|こ}ないでください。')");assert.equal(spoken.text,'来ないでください。');
-console.log('PASS: 13 scenario flows / 63 first-answer submissions; graded completion, shared concept SRS and grammar return links; original learning flows, writing resume, progress import and invalid data.');
+console.log('PASS: 16 scenario flows / 81 first-answer submissions; graded completion, shared concept SRS and grammar return links; original learning flows, writing resume, progress import and invalid data.');

@@ -44,7 +44,7 @@ const old={lessons:{permission:{complete:true,best:5,attempts:1}},skills:{'avoid
 assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(old))),old);
 const updated={lessons:{...old.lessons,'ta-form':{complete:true,best:4,attempts:1}},skills:{...old.skills,'invitation-meaning':{attempts:2,correct:0,streak:0,needsReview:true,due:0}}};
 assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(updated))),updated);
-for(const rng of [()=>0,()=>.5,()=>.99]){const q=grammarQueue('mixed',updated,rng);assert.equal(q.length,18);assert.equal(new Set(q.map(q=>q.lesson)).size,18);}
+for(const rng of [()=>0,()=>.5,()=>.99]){const q=grammarQueue('mixed',updated,rng);assert.equal(q.length,24);assert.equal(new Set(q.map(q=>q.lesson)).size,24);}
 const review=emptyGrammar(),decline=allGrammarQuestions.find(q=>q.id==='iv-4');recordGrammarAnswer(review,decline,'朋友已經答應，只是晚一點到。',1000);assert.ok(dueGrammarSkills(review,1000).includes('invitation-meaning'));
 
 globalThis.document={querySelector:()=>({focus(){},scrollIntoView(){}})};globalThis.window={scrollTo(){}};
@@ -62,5 +62,5 @@ click({gvword:'drink'});click({gvstep:'2'});assert.ok(html.includes('data-gbridg
 click({glesson:'desire'});click({gvstep:'2'});assert.ok(html.includes('data-gbridge="want" aria-pressed="true"')); // Cross-course state does not leak.
 click({glesson:'invitation'});click({gaction:'practice'});choose('いっしょに{昼|ひる}ごはんを{食|た}べませんか。');click({gaction:'next'});for(const i of [1,2,0,3,4])click({gtile:String(i)});click({gaction:'submit'});assert.ok(html.includes('✓ 判斷正確'));
 assert.ok(readFileSync('dist/index.html','utf8').includes('./grammar/bridge.css'));
-assert.equal(grammarLessons.length,18);
+assert.equal(grammarLessons.length,24);
 console.log('PASS: 24 independent ta forms and 来る readings; 8 desire / 8 invitation contexts; 144 guide and dialogue states; polite/plain past, negative desire alternatives, invitation replies, selectors, first-answer classification/form tracking and old/new backups.');

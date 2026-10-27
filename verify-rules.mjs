@@ -52,7 +52,7 @@ const old={lessons:{'te-iru':{complete:true,best:4,attempts:2}},skills:{'iru-con
 assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(old))),old);
 const expanded={lessons:{...old.lessons,permission:{complete:true,best:5,attempts:1}},skills:{...old.skills,'avoid-form':{attempts:3,correct:2,streak:2,needsReview:false,due:900000}}};
 assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(expanded))),expanded);
-for(const rng of [()=>0,()=>.5,()=>.99]){const q=grammarQueue('mixed',expanded,rng);assert.equal(q.length,18);assert.ok(ids.every(id=>q.some(q=>q.lesson===id)));}
+for(const rng of [()=>0,()=>.5,()=>.99]){const q=grammarQueue('mixed',expanded,rng);assert.equal(q.length,24);assert.ok(ids.every(id=>q.some(q=>q.lesson===id)));}
 
 globalThis.document={querySelector:()=>({focus(){},scrollIntoView(){}})};globalThis.window={scrollTo(){}};
 const p=emptyGrammar();let html='',saved=0,speech=[];
@@ -75,5 +75,5 @@ assert.deepEqual(p.lessons.permission,{complete:true,best:5,attempts:1});assert.
 assert.equal(p.skills['permission-meaning'].needsReview,false); // Two later correct meaning answers clear the initial mistake.
 assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(p))),p);
 click({gsound:'ここで写真を撮ってもいいですか。'});assert.deepEqual(speech,['ここで写真を撮ってもいいですか。']);
-assert.equal(grammarLessons.length,18);
+assert.equal(grammarLessons.length,24);
 console.log('PASS: 18 permission/negative-request/prohibition questions; 8 reviewed verbs / 120 illustrated and comparison states; て/ない connections and 来る readings; permission replies, contextual distinctions, selector guards, first-answer review, completion and old/new backups.');

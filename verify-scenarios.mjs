@@ -7,15 +7,15 @@ import {emptyGrammar,cleanGrammar,dueGrammarSkills,grammarQueue} from './dist/gr
 import {lessons,legacyLessons,allWords} from './dist/data.js';
 import {plainJapanese} from './dist/particles/ui.js';
 
-assert.equal(scenarioLessons.length,8);assert.equal(legacyLessons.length,5);assert.equal(lessons.length,13);assert.equal(allWords.length,78);
+assert.equal(scenarioLessons.length,11);assert.equal(legacyLessons.length,5);assert.equal(lessons.length,16);assert.equal(allWords.length,96);
 assert.deepEqual(legacyLessons.map(l=>l.id),['meet','cafe','shop','place','like']);
-assert.equal(new Set(allWords.map(w=>w.id)).size,78);
+assert.equal(new Set(allWords.map(w=>w.id)).size,96);
 const questions=scenarioLessons.flatMap(l=>l.questions),coverage=new Set(questions.map(q=>q.grammar));
-assert.equal(questions.length,48);assert.equal(new Set(questions.map(q=>q.id)).size,48);
-assert.equal(lessons.reduce((n,l)=>n+l.questions.length,0),63);
+assert.equal(questions.length,66);assert.equal(new Set(questions.map(q=>q.id)).size,66);
+assert.equal(lessons.reduce((n,l)=>n+l.questions.length,0),81);
 assert.deepEqual(new Set(grammarLessons.map(l=>l.id)),coverage); // Coverage must be assessed, not merely mentioned in a dialogue.
-assert.deepEqual(questions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:21,input:21,listen:6});
-const expectedCoverage=[['statement','negative','question'],['verbs','verb-groups','masu-form','nai-form'],['past','ta-form'],['adjectives'],['te-request','te-form'],['te-iru'],['permission','avoid-request','prohibition'],['desire','invitation']];
+assert.deepEqual(questions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:29,input:29,listen:8});
+const expectedCoverage=[['statement','negative','question'],['verbs','verb-groups','masu-form','nai-form'],['past','ta-form'],['adjectives'],['te-request','te-form'],['te-iru'],['permission','avoid-request','prohibition'],['desire','invitation'],['existence','demonstratives'],['interrogatives','time-frequency'],['state-past','preferences']];
 for(const [i,l] of scenarioLessons.entries()){
   assert.equal(l.words.length,6);assert.ok(l.dialogue.length>=6);assert.equal(l.points.length,3);assert.equal(l.questions.length,6);
   assert.deepEqual(new Set(scenarioGrammarIds(l)),new Set(expectedCoverage[i]));
@@ -68,4 +68,4 @@ assert.deepEqual(cleanCourseProgress(l,{step:4,complete:true,best:99,attempts:2}
 for(const raw of [null,{},[],{step:-1},{step:8}])assert.equal(cleanCourseProgress(l,raw),null);
 const queued=emptyGrammar();recordScenarioAnswer(queued,q('scene-weekend-6'),0,1000);const review=grammarQueue('review',queued,()=>.5,1000);assert.ok(review.length&&review.every(q=>q.use==='invitation-meaning'));assert.ok(review.every(q=>allGrammarQuestions.some(b=>b.id===q.id)));
 assert.ok(scenarioGrammarLinks(['te-request']).includes('data-glesson="te-request"'));
-console.log('PASS: 8 applied scenarios / 48 reviewed questions cover all 18 grammar lessons; 24 interactive breakdowns; 78 stable word IDs; kana/kanji and negative alternatives; invalid answers, grammar SRS sharing without course completion, graded completion and old progress compatibility.');
+console.log('PASS: 11 applied scenarios / 66 reviewed questions cover all 24 grammar lessons; 33 interactive breakdowns; 96 stable word IDs; kana/kanji and negative alternatives; invalid answers, grammar SRS sharing without course completion, graded completion and old progress compatibility.');
