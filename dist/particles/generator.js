@@ -1,4 +1,5 @@
 import {particleLessons,allParticleQuestions} from './data.js';
+import {connectionVariations} from './connections.js';
 
 // Reviewed vocabulary groups and compatible slots. Stable IDs are part of backup history.
 // Questions are assembled only when selected; no network service is used.
@@ -55,6 +56,7 @@ const optionRules={
   movement:{options:['に','へ','で'],answers:['に','へ'],wrong:{で:'空格前面是要去、來或回到的地方，不是動作發生的場所。'}}
 };
 function buildQuestion(descriptor){
+  if(descriptor.ready){const q=descriptor.ready;return {...q,options:[...q.options],answers:[...q.answers],wrong:{...q.wrong},words:q.words.map(w=>({...w}))};}
   const {id,lesson,use,slots:s}=descriptor;
   let context,sentence,translation,why,words;
   const [a,b,c]=s;
@@ -132,7 +134,7 @@ for(const p of people)add('return','ni-he','movement',[p]);
 
 const fixed=new Set(allParticleQuestions.map(q=>`${q.lesson}:${signature(q)}`));
 // Filter exact sentences already used by that lesson's fixed assessment.
-const catalog=descriptors.filter(d=>!fixed.has(`${d.lesson}:${signature(buildQuestion(d))}`));
+const catalog=[...descriptors,...connectionVariations.map(ready=>({id:ready.id,lesson:ready.lesson,use:ready.use,ready}))].filter(d=>!fixed.has(`${d.lesson}:${signature(buildQuestion(d))}`));
 const byId=new Map(catalog.map(d=>[d.id,d]));
 export const variationCounts=Object.fromEntries(particleLessons.map(l=>[l.id,catalog.filter(d=>d.lesson===l.id).length]));
 export const variationTotal=catalog.length;

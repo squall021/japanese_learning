@@ -34,6 +34,8 @@
 | `v1.10.0` | 十三堂情境課、63 題，新增八堂應用對應十八課文法；成績、回看與概念複習整合 |
 | `checkpoint-20261027-1858-before-foundation-19-24` | 加入第19～24課前的 v1.10.0 |
 | `v1.11.0` | 二十四堂文法、144題；第19～24課圖解與三堂新情境，情境合計16課81題 |
+| `checkpoint-20261103-lesson25-27-particles` | 加入第25～27課與が／は・が／と助詞課前的穩定版，commit `99b9ace` |
+| `v1.12.0` | 27堂文法162題、9堂助詞36題與348種變化、17堂情境87題 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
 
@@ -54,6 +56,8 @@ v1.9.0 已通過全部語法與九組自動檢查，涵蓋十八課 108 題、24
 v1.10.0 已通過全部語法與十組自動檢查，涵蓋十三課 63 題流程、48 題實際對應十八堂文法、24 組拆解、78 個詞語 ID、漢字／假名與否定替代答案、標音、重複提交與完成防護、共用文法概念但分開成績，以及舊備份相容。瀏覽器完成展覽課六題、5／6 結算、完成與重載保存；原五課紀錄保留，錯題已加入文法複習。另實測回看文法並返回、手機輸入與長選項換行。桌面及 390px 手機版完成目視與無水平溢位檢查，預覽保存在工作區。
 
 ## 方法一：在 GitHub 重新發布儲存點
+
+v1.12.0 更新前儲存點為 `checkpoint-20261103-lesson25-27-particles`。語法與12組自動檢查通過；瀏覽器實測新助詞四題、文法六題與重載成績，六堂新課390px手機寬度檢查無溢位，桌面比較卡與手機先後圖目視及截圖完成。
 
 第19～24課更新前儲存點：`checkpoint-20261027-1858-before-foundation-19-24`，對應 v1.10.0（`ff2dfdf`）。新版標籤 `v1.11.0` 包含24堂文法、144題、29個新增圖解狀態，以及16堂情境81題。
 
@@ -76,7 +80,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs verify-foundations.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs verify-foundations.mjs verify-connections.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs

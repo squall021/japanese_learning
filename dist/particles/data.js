@@ -1,5 +1,7 @@
 // Original short lessons. {word|reading} supplies furigana; 【particle】 is the clickable focus.
+import {connectionParticleLessons,connectionUsages} from './connections.js';
 export const usages = {
+  ...connectionUsages,
   topic:'は・談論主題', object:'を・動作對象', possession:'の・所屬關係',
   category:'の・名詞修飾', addition:'も・相同資訊', existence:'に・存在位置',
   action:'で・動作場所', movement:'に／へ・移動方向與目的地'
@@ -86,8 +88,10 @@ export const particleLessons = [
     q('nh-3','movement','要朗讀「去車站」，其中助詞「へ」讀什麼音？','{駅|えき}へ{行|い}きます。',['へ（he）','え（e）','に（ni）'],['え（e）'],'助詞「へ」寫作へ，讀作え。',{ 'へ（he）':'假名本身可讀 he，但在這裡作助詞，讀 e。','に（ni）':'「に」可以替換本句的助詞，但題目問的是「へ」的讀音。'}),
     q('nh-4','movement','比較「学校に行きます」和「学校へ行きます」，哪個理解適合一般的上學情境？','{学校|がっこう}に{行|い}きます。／{学校|がっこう}へ{行|い}きます。',['只有「に」正確','兩句都可以','「へ」一定不會到達'],['兩句都可以'],'兩句在這個一般移動情境都成立；「へ」也能指向目的地。',{ '只有「に」正確':'「へ」同樣可表達朝學校移動，在這個情境成立。','「へ」一定不會到達':'「へ」沒有「一定不會到達」的意思，不能這樣推論。'})]}
 ];
+particleLessons.push(...connectionParticleLessons);
 export const allParticleQuestions = particleLessons.flatMap(l=>l.questions.map(q=>({...q,lesson:l.id})));
 export const sourceLinks = [
   ['國際交流基金《いろどり》文法筆記','https://www.irodori.jpf.go.jp/assets/data/Grammar_all.pdf'],
-  ['東京外國語大學：NへVます','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/026.html']
+  ['東京外國語大學：NへVます','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/026.html'],
+  ['東京外國語大學：が・と等格助詞','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/053.html']
 ];

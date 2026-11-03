@@ -5,7 +5,7 @@ import {emptyParticles,cleanParticles,particleQueue,recordParticleAnswer} from '
 import {createParticles,plainJapanese} from './dist/particles/ui.js';
 
 const all=variationIds().map(questionFromVariationId),fixed=new Set(allParticleQuestions.map(q=>`${q.lesson}:${plainJapanese(q.sentence)}`));
-assert.equal(all.length,299);
+assert.equal(all.length,348);
 assert.equal(variationTotal,Object.values(variationCounts).reduce((a,b)=>a+b,0));
 assert.equal(new Set(all.map(q=>q.id)).size,all.length);
 assert.equal(new Set(all.map(q=>q.context+q.sentence)).size,all.length);
@@ -29,9 +29,9 @@ for(const random of [()=>0,()=>.999,()=>.4]){
   for(const scope of ['all',...particleLessons.map(l=>l.id)]){
     const first=variationQueue(scope,[],random),history=first.map(q=>q.id),second=variationQueue(scope,history,random);
     for(const batch of [first,second]){
-      assert.equal(batch.length,6);assert.equal(new Set(batch.map(q=>q.id)).size,6);
-      assert.equal(new Set(batch.map(q=>plainJapanese(q.sentence))).size,6);
-      if(scope==='all')assert.equal(new Set(batch.map(q=>q.lesson)).size,6);
+      const count=scope==='all'?9:6;assert.equal(batch.length,count);assert.equal(new Set(batch.map(q=>q.id)).size,count);
+      assert.equal(new Set(batch.map(q=>plainJapanese(q.sentence))).size,count);
+      if(scope==='all')assert.equal(new Set(batch.map(q=>q.lesson)).size,9);
       else assert.ok(batch.every(q=>q.lesson===scope));
       if(scope==='no'||scope==='ni-de'){
         const counts={};for(const q of batch)counts[q.use]=(counts[q.use]||0)+1;
@@ -86,5 +86,5 @@ assert.deepEqual(progress.lessons['ni-he'],{complete:true,best:3,attempts:1});
 const previous=[...progress.recentVariations];click({paction:'retry'});
 assert.ok(html.includes('に / へ · 變化練習'));
 assert.ok(!previous.includes(progress.recentVariations.at(-1)));
-ui.reset();click({pvariation:'all'});assert.ok(html.includes('六課綜合變化練習'));
-console.log('PASS: 299 generated scenarios; reviewed slot rules; all choices explained; multi-answer acceptance; balanced six-question batches; recent-history avoidance/exhaustion; old backup migration; fixed/generated review pairing; displayed-only history and assessment isolation.');
+ui.reset();click({pvariation:'all'});assert.ok(html.includes('9 課綜合變化練習'));
+console.log('PASS: 348 generated scenarios; reviewed slot rules; all choices explained; multi-answer acceptance; balanced six-question batches; recent-history avoidance/exhaustion; old backup migration; fixed/generated review pairing; displayed-only history and assessment isolation.');

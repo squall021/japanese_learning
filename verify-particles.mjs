@@ -3,9 +3,9 @@ import {particleLessons,allParticleQuestions,usages} from './dist/particles/data
 import {emptyParticles,cleanParticles,isAccepted,recordParticleAnswer,finishParticleLesson,dueParticleUsages,particleQueue} from './dist/particles/model.js';
 import {createParticles,particleText,plainJapanese} from './dist/particles/ui.js';
 
-assert.equal(particleLessons.length,6);
-assert.equal(allParticleQuestions.length,24);
-assert.equal(new Set(allParticleQuestions.map(q=>q.id)).size,24);
+assert.equal(particleLessons.length,9);
+assert.equal(allParticleQuestions.length,36);
+assert.equal(new Set(allParticleQuestions.map(q=>q.id)).size,36);
 for(const l of particleLessons){
   assert.equal(l.examples.length,3);assert.equal(l.questions.length,4);
   for(const e of l.examples){assert.match(e.sentence,/【.+】/);assert.ok(e.scene&&e.relation&&e.note);assert.ok(!/[{}【】]/.test(plainJapanese(e.sentence)));}
@@ -37,7 +37,7 @@ assert.equal(progress.skills.movement.streak,0);
 const review=particleQueue('review',progress,()=>.4,now);
 assert.equal(review.length,2);assert.equal(new Set(review.map(q=>q.id)).size,2);assert.ok(review.every(q=>q.use==='movement'));
 const mixed=particleQueue('mixed',emptyParticles(),()=>.6,now);
-assert.equal(mixed.length,6);assert.equal(new Set(mixed.map(q=>q.lesson)).size,6);
+assert.equal(mixed.length,9);assert.equal(new Set(mixed.map(q=>q.lesson)).size,9);
 finishParticleLesson(progress,'wa',3);finishParticleLesson(progress,'wa',1);
 assert.deepEqual(progress.lessons.wa,{best:3,attempts:2,complete:true});
 assert.deepEqual(cleanParticles(JSON.parse(JSON.stringify(progress))),progress);
@@ -65,4 +65,4 @@ assert.equal(savedAnswers,4);assert.equal(sessionProgress.lessons['ni-he'].best,
 assert.equal(sessionProgress.lessons['ni-he'].attempts,1);click({paction:'next'});
 assert.equal(sessionProgress.lessons['ni-he'].attempts,1);
 assert.ok(html.includes('本次答對題數'));
-console.log('PASS: six lessons / 24 contextual questions; all choices explained; に and へ both accepted; usage scheduling and mistake recovery; backup validation; balanced mixed/review queues; duplicate-answer and premature-completion guards.');
+console.log('PASS: nine lessons / 36 contextual questions; all choices explained; に and へ both accepted; usage scheduling and mistake recovery; backup validation; balanced mixed/review queues; duplicate-answer and premature-completion guards.');

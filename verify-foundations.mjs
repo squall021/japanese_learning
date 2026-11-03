@@ -10,7 +10,7 @@ import {scenarioLessons} from './dist/scenarios/data.js';
 import {scenarioVerdict,scenarioAnswerMarkup} from './dist/scenarios/model.js';
 
 const ids=['existence','demonstratives','interrogatives','state-past','preferences','time-frequency'];
-assert.deepEqual(grammarLessons.slice(18).map(l=>l.id),ids);
+assert.deepEqual(grammarLessons.slice(18,24).map(l=>l.id),ids);
 assert.equal(foundationLessons.flatMap(l=>l.questions).length,36);
 assert.equal(Object.keys(foundationSkills).length,12);
 let states=0;

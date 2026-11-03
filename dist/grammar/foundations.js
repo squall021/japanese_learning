@@ -1,6 +1,8 @@
 import {particleText as text,plainJapanese} from '../particles/ui.js';
+import {connectionDecks} from './connections.js';
 const card=(label,jp,zh,note,visual,extra={})=>({label,jp,zh,note,visual,...extra});
 export const foundationDecks={
+  ...connectionDecks,
   existence:{title:'看位置，也看句子在說什麼',intro:'點選房間裡的物品、動物或人物。每張圖都能對照完整句子。',cards:[
     card('桌上的書','{机|つくえ}の{上|うえ}に{本|ほん}があります。','桌上有書。','書是物品，用あります。机の上是位置，用に連接。','book'),
     card('椅下的貓','{猫|ねこ}はいすの{下|した}にいます。','貓在椅子下面。','貓是動物，用います。已知道在找貓，可先用猫は提出話題。','cat'),
@@ -65,6 +67,7 @@ export function foundationGuide(id,index=0){
   let visual;
   if(c.visual==='info')visual=`<div class="g-info-card"><span class="eyebrow">聚會資訊卡</span>${[['誰','田中'],['帶什麼','茶'],['在哪裡','車站'],['何時','明天']].map(([k,v],i)=>`<div class="${i===c.missing?'missing':''}"><span>${k}</span><strong>${i===c.missing?'？':v}</strong></div>`).join('')}</div>`;
   else if(c.visual==='past')visual=`<div class="g-past-card"><div><span>現在的描述</span><p lang="ja">${text(c.now)}</p></div><b aria-hidden="true">↓</b><div><span>移到過去・肯定</span><p lang="ja">${text(c.past)}</p></div><div><span>移到過去・否定</span><p lang="ja">${text(c.negative)}</p></div></div>`;
+  else if(c.visual==='relation'||c.visual==='comparison')visual=`<ol class="g-relation-card${c.visual==='comparison'?' g-comparison-card':''}">${c.steps.map(([label,value])=>`<li><span>${esc(label)}</span><strong lang="ja">${esc(value)}</strong></li>`).join('')}</ol>`;
   else visual=illustration(c);
   return `<section class="g-foundation-guide" aria-label="生活句型互動圖解"><div class="g-guide-heading"><div><span class="eyebrow">SEE IT, SAY IT</span><h2>${deck.title}</h2><p>${deck.intro}</p></div></div><div class="g-foundation-tabs" role="group" aria-label="切換圖解情境">${deck.cards.map((x,i)=>`<button data-gfoundation="${i}" aria-pressed="${i===active}">${x.label}</button>`).join('')}</div><div class="g-foundation-panel"><div class="g-foundation-picture">${visual}</div><div class="g-foundation-explain" aria-live="polite"><span class="eyebrow">${c.label}</span>${c.route?`<p class="g-foundation-route">${c.route}</p>`:''}<p class="g-foundation-jp" lang="ja">${text(c.jp)} ${sound(c.jp)}</p><strong>${c.zh}</strong><p>${c.note}</p>${c.reply?`<div class="g-foundation-reply"><span>補回缺少的資訊</span><p lang="ja">${text(c.reply)} ${sound(c.reply)}</p></div>`:''}</div></div><p class="g-small-note">圖解可自由切換，不計入成績。完成下方六題後才會保存本課最佳成績。</p></section>`;
 }
