@@ -8,6 +8,9 @@ import {emptyGrammar,cleanGrammar} from './dist/grammar/model.js';
 import {createGrammar} from './dist/grammar/ui.js';
 import {emptyPhrasebook,cleanPhrasebook} from './dist/phrasebook/model.js';
 import {createPhrasebook} from './dist/phrasebook/ui.js';
+import {guidePaths,guideFeatures,learningGuide,homeGuide,hasLearningHistory} from './dist/guide.js';
+import {grammarLessons} from './dist/grammar/data.js';
+import {particleLessons} from './dist/particles/data.js';
 import {readFileSync} from 'node:fs';
 import {acceptedScenarioAnswers,scenarioAnswerMarkup,recordScenarioAnswer,cleanCourseProgress,canFinishCourse,finishScenarioPractice} from './dist/scenarios/model.js';
 import {scenarioTeaching,scenarioGrammarLinks,scenarioCourseList} from './dist/scenarios/ui.js';
@@ -27,12 +30,41 @@ function node(s){if(!nodes.has(s))nodes.set(s,{focus(){},scrollIntoView(){},inne
 globalThis.document={querySelector:node};globalThis.window={scrollTo(){}};
 const context={particleText,plainJapanese,acceptedScenarioAnswers,scenarioAnswerMarkup,recordScenarioAnswer,cleanCourseProgress,canFinishCourse,finishScenarioPractice,scenarioTeaching,scenarioGrammarLinks,scenarioCourseList,emptyGrammar,cleanGrammar,createGrammar,emptyParticles,cleanParticles,createParticles,cleanWritingProgress,hasHandwriting,openHandwriting:options=>{writingOptions=options;},lessons,allWords,kanaRows,comboRows,console,Date,Math,JSON,Intl,Set,Blob,URL,setTimeout:()=>0,clearTimeout(){},window:{scrollTo(){}},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},document:{body:{dataset:{}},querySelector:node,querySelectorAll:()=>[],addEventListener:(k,f)=>{events[k]??=f;}}};
 vm.createContext(context);
-Object.assign(context,{emptyPhrasebook,cleanPhrasebook,createPhrasebook});
+Object.assign(context,{emptyPhrasebook,cleanPhrasebook,createPhrasebook,guidePaths,learningGuide,homeGuide});
 const code=readFileSync('dist/app.js','utf8').replace(/^import[^\n]+\n/gm,'');
 vm.runInContext(code,context);
 const run=code=>vm.runInContext(code,context);
 assert.throws(()=>run('validate({version:2})'));
 assert.equal(run("esc('<script>')"),'&lt;script&gt;');
+// Check the guide's real navigation targets and preserve learning data while choosing a route.
+assert.equal(hasLearningHistory(run('defaults()')),false);
+assert.ok(node('#app').innerHTML.includes('第一次來？從適合你的地方開始'));
+const allowedPages=new Set(['today','guide','kana','particles','grammar','courses','phrasebook','review','mine']);
+const targets=[...guidePaths.flatMap(p=>p.steps.flatMap(s=>[s.target,...(s.extra?[s.extra]:[])])),...guideFeatures.map(f=>f.target)];
+for(const t of targets){
+ assert.ok(t.kind==='nav'?allowedPages.has(t.id):t.kind==='glesson'?grammarLessons.some(l=>l.id===t.id):t.kind==='plesson'&&particleLessons.some(l=>l.id===t.id),t.label);
+}
+const initialData=run('JSON.stringify(state)');
+for(const p of guidePaths){
+ events.click({target:{closest:()=>({dataset:{guidePath:p.id}})}});
+ assert.equal(run('page'),'guide');assert.ok(node('#app').innerHTML.includes(`${p.title}，可以這樣開始`));
+ assert.equal(run('JSON.stringify(state)'),initialData);
+}
+events.click({target:{closest:()=>({dataset:{guidePath:'<script>'}})}});assert.equal(run('guidePath'),'travel');
+assert.ok(learningGuide('<script>').includes('日文初學者，可以這樣開始'));
+for(const t of targets){
+ events.click({target:{closest:()=>({dataset:{[t.kind]:t.id}})},preventDefault(){}});
+ assert.equal(run('page'),t.kind==='nav'?t.id:t.kind==='glesson'?'grammar':'particles');
+ if(t.kind==='glesson')assert.ok(node('#app').innerHTML.includes(grammarLessons.find(l=>l.id===t.id).title));
+ if(t.kind==='plesson')assert.ok(node('#app').innerHTML.includes(particleLessons.find(l=>l.id===t.id).title));
+ assert.equal(run('JSON.stringify(state)'),initialData);
+}
+for(const extra of [{kana:{hあ:true}},{writing:{あ:{trace:1,free:0}}},{grammar:{lessons:{statement:{attempts:1}},skills:{}}},{particles:{lessons:{},skills:{topic:{attempts:1}}}},{phrasebook:{saved:[],recent:['shop-bag']}}]){
+ assert.equal(hasLearningHistory({...run('defaults()'),...extra}),true);
+ assert.ok(homeGuide({...run('defaults()'),...extra}).includes('想換個學習方向'));
+}
+assert.equal(hasLearningHistory({...run('defaults()'),kana:{hあ:false},writing:{あ:{trace:0,free:0}}}),false);
+run("nav('today')");
 run("startLesson('meet')");
 assert.equal(JSON.parse(memory.get('hiyori-v1')).progress.meet.step,0);
 for(const l of lessons){run(`startLesson('${l.id}');moveStep(3);`);for(const q of l.questions){run(`checkAnswer(${JSON.stringify(q.answer)})`);assert.equal(run('answer'),true,q.id);const before=run('state.activity[today()]');run(`checkAnswer(${JSON.stringify(q.answer)})`);assert.equal(run('state.activity[today()]'),before);events.click({target:{closest:()=>({dataset:{action:'next-question'}})}});}assert.equal(run('quizDone'),true);assert.equal(run(`state.progress['${l.id}'].best`),l.questions.length);assert.equal(run(`state.progress['${l.id}'].attempts`),1);events.click({target:{closest:()=>({dataset:{action:'next-question'}})}});assert.equal(run(`state.progress['${l.id}'].attempts`),1);}
@@ -138,4 +170,7 @@ run('pendingImport=validate(JSON.parse(JSON.stringify(state)));');
 events.click({target:{closest:()=>({dataset:{action:'confirm-import'}})}});
 assert.equal(run('state.phrasebook.saved[0]'),'shop-bag');assert.equal(run('state.phrasebook.recent[0]'),'shop-bag');
 run("startLesson('like');moveStep(2)");events.click({target:{closest:()=>({dataset:{token:'1'}})}});assert.ok(node('#detail').innerHTML.includes('data-plesson="ga"'));
-console.log('PASS: 17 scenario flows / 87 first-answer submissions; graded completion, shared concept SRS and grammar return links; original learning flows, writing resume, progress import, new ga lesson link and invalid data.');
+const learnedData=run('JSON.stringify(state)');run("nav('guide')");
+assert.equal(run('JSON.stringify(state)'),learnedData);assert.ok(run('home()').includes('想換個學習方向'));
+assert.equal(JSON.stringify(JSON.parse(memory.get('hiyori-v1'))),learnedData);
+console.log('PASS: first-visit guide and all live lesson links without progress changes; 17 scenario flows / 87 first-answer submissions; graded completion, shared concept SRS and grammar return links; original learning flows, writing resume, progress import, new ga lesson link and invalid data.');

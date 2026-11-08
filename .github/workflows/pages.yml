@@ -34,6 +34,7 @@ jobs:
         run: |
           node --check dist/app.js
           node --check dist/data.js
+          if [ -f dist/guide.js ]; then node --check dist/guide.js; fi
           if [ -f dist/handwriting/handwriting.js ]; then node --check dist/handwriting/handwriting.js; fi
           node verify.mjs
           if [ -f verify-handwriting.mjs ]; then node verify-handwriting.mjs; fi
