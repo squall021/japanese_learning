@@ -35,6 +35,7 @@ jobs:
           node --check dist/app.js
           node --check dist/data.js
           if [ -f dist/guide.js ]; then node --check dist/guide.js; fi
+          if [ -f dist/phrasebook/edition-two.js ]; then node --check dist/phrasebook/edition-two.js; fi
           if [ -f dist/handwriting/handwriting.js ]; then node --check dist/handwriting/handwriting.js; fi
           node verify.mjs
           if [ -f verify-handwriting.mjs ]; then node verify-handwriting.mjs; fi

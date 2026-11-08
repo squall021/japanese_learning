@@ -11,13 +11,16 @@ export function resolveScene(scene,selection={}){
   return (slots[key].options.find(o=>o.id===selection[key])||slots[key].options[0])[lang];
  });
  const resolve=line=>({...line,jp:replace(line.jp,'jp'),zh:replace(line.zh,'zh')});
- return {...scene,lines:scene.lines.map(resolve),alternatives:scene.alternatives.map(resolve)};
+ const p=scene.replyPractice;
+ return {...scene,lines:scene.lines.map(resolve),alternatives:scene.alternatives.map(resolve),...(p?{replyPractice:{...p,prompt:resolve(p.prompt),options:p.options.map(o=>({...o,line:resolve(o.line),reply:resolve(o.reply)}))}}:{})};
 }
 const plain=s=>s.replace(/\{([^|{}]+)\|[^{}]+\}/g,'$1');
+const reading=s=>s.replace(/\{[^|{}]+\|([^{}]+)\}/g,'$1');
+const sceneLines=s=>[...s.lines,...s.alternatives,...(s.replyPractice?[s.replyPractice.prompt,...s.replyPractice.options.flatMap(o=>[o.line,o.reply])]:[])];
 export const normalizeSearch=s=>String(s).normalize('NFKC').toLowerCase().replace(/[\u30a1-\u30f6]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
 const searchable=s=>normalizeSearch([s.title,s.description,categories.find(c=>c.id===s.category).name,...s.keywords,
- ...[...s.lines,...s.alternatives].flatMap(l=>[plain(l.jp),l.jp.replace(/\{[^|{}]+\|([^{}]+)\}/g,'$1'),l.zh]),
- ...s.slots.flatMap(key=>slots[key].options.flatMap(o=>[plain(o.jp),o.zh]))].join(' '));
+ ...sceneLines(s).flatMap(l=>[plain(l.jp),reading(l.jp),l.zh]),...(s.replyPractice?.options.map(o=>o.label)||[]),
+ ...s.slots.flatMap(key=>slots[key].options.flatMap(o=>[plain(o.jp),reading(o.jp),o.zh]))].join(' '));
 const index=new Map(scenes.map(s=>[s.id,searchable(s)]));
 export function findScenes(query='',category='all',scope='all',book=emptyPhrasebook()){
  const terms=normalizeSearch(query).trim().split(/\s+/).filter(Boolean);

@@ -4,9 +4,11 @@ import {emptyPhrasebook,cleanPhrasebook,rememberScene,toggleSaved,resolveScene,n
 import {createPhrasebook} from './dist/phrasebook/ui.js';
 import {plainJapanese} from './dist/particles/ui.js';
 
-assert.equal(categories.length,6);
-assert.equal(scenes.length,36);
-assert.equal(new Set(scenes.map(s=>s.id)).size,36);
+assert.equal(categories.length,10);
+assert.equal(scenes.length,60);
+assert.equal(new Set(scenes.map(s=>s.id)).size,60);
+assert.equal(new Set(scenes.slice(0,36).map(s=>s.category)).size,6);
+assert.deepEqual(scenes.slice(0,36).map(s=>s.id),['shop-find','shop-color','shop-size','shop-try','shop-bag','shop-payment','travel-ticket','travel-platform','travel-transfer','travel-confirm','travel-gate','travel-taxi','ticket-count','ticket-discount','ticket-date','ticket-reservation','ticket-full','ticket-entry','food-party','food-takeout','food-order','food-ingredient','food-extra','food-bill','hotel-checkin','hotel-luggage','hotel-times','hotel-breakfast','hotel-problem','hotel-towels','place-toilet','place-exit','place-elevator','place-locker','place-queue','place-photo']);
 for(const c of categories)assert.equal(scenes.filter(s=>s.category===c.id).length,6);
 const validateLine=l=>{
  assert.ok(['you','staff'].includes(l.role));assert.ok(l.jp&&l.zh);
@@ -17,7 +19,13 @@ const validateLine=l=>{
 for(const s of scenes){
  assert.ok(s.lines.some(l=>l.role==='you')&&s.lines.some(l=>l.role==='staff'));
  assert.equal(s.alternatives.length,2);
- for(const l of [...resolveScene(s).lines,...resolveScene(s).alternatives])validateLine(l);
+ const resolved=resolveScene(s);
+ for(const l of [...resolved.lines,...resolved.alternatives])validateLine(l);
+ if(s.replyPractice){
+  assert.equal(s.replyPractice.options.length,2);assert.equal(new Set(s.replyPractice.options.map(o=>o.id)).size,2);
+  validateLine(resolved.replyPractice.prompt);assert.equal(resolved.replyPractice.prompt.role,'staff');
+  for(const o of resolved.replyPractice.options){assert.ok(o.label);validateLine(o.line);validateLine(o.reply);assert.equal(o.line.role,'you');assert.equal(o.reply.role,'staff');}
+ }
  for(const key of s.slots){
   assert.ok(slots[key]);assert.equal(new Set(slots[key].options.map(o=>o.id)).size,slots[key].options.length);
   for(const o of slots[key].options){
@@ -38,6 +46,7 @@ assert.ok(findScenes('袋子').some(s=>s.id==='shop-bag'));
 assert.ok(findScenes('轉車').some(s=>s.id==='travel-transfer'));
 assert.ok(findScenes('月台').some(s=>s.id==='travel-platform'));
 assert.ok(findScenes('小孩票').some(s=>s.id==='ticket-count'));
+for(const [query,id]of [['微波','store-warm'],['寄件','store-send'],['影印','store-copy'],['中文導覽','sight-audio'],['wifi','connect-wifi'],['ＳＩＭ','connect-sim'],['遺失','help-lost'],['さいふ','help-lost'],['自備袋子','shop-bag']])assert.ok(findScenes(query).some(s=>s.id===id),query);
 assert.ok(findScenes('袋').some(s=>s.id==='shop-bag'));
 assert.ok(findScenes('ふくろ').some(s=>s.id==='shop-bag'));
 assert.ok(findScenes('ｻｲｽﾞ').some(s=>s.id==='shop-size'));
@@ -59,11 +68,11 @@ toggleSaved(book,'shop-bag');assert.equal(book.saved.length,0);
 
 let html='',modal='',spoken,changed=0,renders=0,stopped=0,navigated=0;
 const result={innerHTML:''};
-globalThis.document={querySelector:s=>s==='#f-results'?result:{focus(){}}};
+globalThis.document={querySelector:s=>s==='#f-results'?result:{focus(){},scrollIntoView(){}}};
 globalThis.window={scrollTo(){}};
 const ui=createPhrasebook({getState:()=>book,render:()=>{renders++;html=ui.renderPage();},changed:()=>changed++,speak:(value,button,opts)=>{spoken={value,opts};},stopSpeech:()=>stopped++,detail:s=>modal=s,navigate:()=>navigated++});
 const click=d=>assert.equal(ui.handle({dataset:d}),true);
-html=ui.renderPage();assert.equal((html.match(/class="f-scene-card"/g)||[]).length,36);
+html=ui.renderPage();assert.equal((html.match(/class="f-scene-card"/g)||[]).length,60);
 assert.equal(ui.handle({dataset:{other:'x'}}),false);
 const beforeInput=renders;assert.equal(ui.input({dataset:{fsearch:''},value:'袋子'}),true);assert.equal(renders,beforeInput);assert.ok(result.innerHTML.includes('shop-bag'));
 ui.input({dataset:{fsearch:''},value:'"><img src=x onerror=alert(1)>'});
@@ -89,6 +98,33 @@ click({faction:'back'});click({fscope:'saved'});assert.ok(html.includes('我的�
 click({faction:'clear'});
 for(let i=0;i<helpPhrases.length;i++){click({fhelpSound:String(i)});assert.equal(spoken.value,plainJapanese(helpPhrases[i].jp));click({fhelpCard:String(i)});assert.ok(modal.includes(helpPhrases[i].zh));}
 click({faction:'translation'});assert.ok(!ui.renderPage().includes('class="f-preview-zh"'));
-ui.reset();assert.equal((ui.renderPage().match(/class="f-scene-card"/g)||[]).length,36);
-assert.equal(navigated,37);assert.ok(stopped>0);
-console.log('PASS: 36 everyday conversations / six categories, all substitutions, search, role-filtered playback, cards, favorites, recent history, backup validation and independent browsing.');
+ui.reset();assert.equal((ui.renderPage().match(/class="f-scene-card"/g)||[]).length,60);
+assert.equal(navigated,61);assert.ok(stopped>0);
+const practiceScenes=scenes.filter(s=>s.replyPractice);
+assert.equal(practiceScenes.length,10);assert.equal(new Set(practiceScenes.map(s=>s.category)).size,10);
+click({faction:'reply-only'});assert.equal((html.match(/class="f-scene-card"/g)||[]).length,10);
+click({fcategory:'convenience'});assert.equal((html.match(/class="f-scene-card"/g)||[]).length,1);
+click({faction:'clear'});assert.equal((html.match(/class="f-scene-card"/g)||[]).length,60);
+click({faction:'translation'});
+for(const scene of practiceScenes){
+ click({fopen:scene.id});const before=JSON.stringify(book),savedChanges=changed;
+ assert.ok(html.includes('f-listen-hint'));assert.ok(!html.includes('class="f-reply-result"'));
+ click({fsound:'practice:prompt'});assert.equal(spoken.value,plainJapanese(scene.replyPractice.prompt.jp));
+ click({faction:'prompt'});assert.ok(html.includes(scene.replyPractice.prompt.zh));
+ click({freply:'<script>'});assert.ok(!html.includes('class="f-reply-result"'));
+ for(const choice of scene.replyPractice.options){
+  click({freply:choice.id});assert.ok(html.includes(choice.line.zh)&&html.includes(choice.reply.zh));
+  click({faction:'reply-play'});assert.deepEqual(spoken.value,[scene.replyPractice.prompt.jp,choice.line.jp,choice.reply.jp].map(plainJapanese));assert.equal(spoken.opts.rate,.65);
+  click({fsound:'practice:answer'});assert.equal(spoken.value,plainJapanese(choice.line.jp));
+  click({fsound:'practice:reply'});assert.equal(spoken.value,plainJapanese(choice.reply.jp));
+  click({fcard:'practice:answer'});assert.ok(modal.includes(choice.line.zh));
+ }
+ click({frole:'staff'});assert.ok(html.includes('切換雙方對話，練習接話'));assert.ok(!html.includes('data-freply='));
+ click({faction:'go-reply'});assert.ok(html.includes('data-freply='));click({faction:'reply-reset'});assert.ok(html.includes('f-listen-hint'));assert.ok(!html.includes('class="f-reply-result"'));
+ assert.equal(JSON.stringify(book),before);assert.equal(changed,savedChanges);
+}
+const bothEditions={saved:['shop-bag','help-lost'],recent:['help-lost','shop-bag']};
+assert.deepEqual(cleanPhrasebook(JSON.parse(JSON.stringify(bothEditions))),bothEditions);
+click({fopen:'store-send'});ui.change({dataset:{fslot:'parcelDestination'},value:'airport'});click({fsound:'line:0'});assert.ok(spoken.value.includes('空港'));
+click({fopen:'help-train'});ui.change({dataset:{fslot:'lostItem'},value:'phone'});click({fcard:'line:0'});assert.ok(modal.includes('手機')&&!modal.includes('[['));
+console.log('PASS: 60 everyday conversations / ten categories; all substitutions and search; ten ungraded reply practices / twenty branches with reveal, reset, playback and cards; original 36 IDs and old/new favorites, history and backup compatibility.');

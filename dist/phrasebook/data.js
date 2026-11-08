@@ -1,11 +1,13 @@
 // Original, reviewed conversations. IDs remain stable for saved scenes and backups.
+import {extraCategories,extraScenes,extraSlots,replyPractices} from './edition-two.js';
 export const categories=[
  {id:'shopping',name:'購物與結帳',icon:'bag',hint:'找商品、顏色、尺寸與付款'},
  {id:'transport',name:'交通與轉乘',icon:'pin',hint:'買車票、找月台、問轉乘與搭車'},
  {id:'tickets',name:'買票與入場',icon:'ticket',hint:'票數、優惠、預約與入場'},
  {id:'dining',name:'餐飲與點餐',icon:'cup',hint:'入座、外帶、點餐與結帳'},
  {id:'hotel',name:'住宿與飯店',icon:'home',hint:'入住、行李、早餐與房間需求'},
- {id:'directions',name:'問路與設施',icon:'sign',hint:'洗手間、出口、置物櫃與排隊'}
+ {id:'directions',name:'問路與設施',icon:'sign',hint:'洗手間、出口、置物櫃與排隊'},
+ ...extraCategories
 ];
 const o=(id,jp,zh)=>({id,jp,zh});
 export const slots={
@@ -18,7 +20,8 @@ export const slots={
  day:{label:'使用日期',options:[o('today','{今日|きょう}','今天'),o('tomorrow','{明日|あした}','明天')]},
  party:{label:'用餐人數',options:[o('2','{二人|ふたり}','兩位'),o('1','{一人|ひとり}','一位'),o('3','{三人|さんにん}','三位'),o('4','{四人|よにん}','四位')]},
  dish:{label:'要點的餐點',options:[o('curry','カレー','咖哩飯'),o('ramen','ラーメン','拉麵'),o('sandwich','サンドイッチ','三明治')]},
- roomIssue:{label:'遇到的問題',options:[o('ac','エアコンが{動|うご}きません','空調無法運作'),o('water','お{湯|ゆ}が{出|で}ません','沒有熱水'),o('key','カードキーが{使|つか}えません','房卡無法使用')]}
+ roomIssue:{label:'遇到的問題',options:[o('ac','エアコンが{動|うご}きません','空調無法運作'),o('water','お{湯|ゆ}が{出|で}ません','沒有熱水'),o('key','カードキーが{使|つか}えません','房卡無法使用')]},
+ ...extraSlots
 };
 const y=(jp,zh)=>({role:'you',jp,zh}),s=(jp,zh)=>({role:'staff',jp,zh});
 const a=(label,jp,zh,role='you')=>({label,role,jp,zh});
@@ -96,11 +99,12 @@ export const scenes=[
  y('ここに{並|なら}べばいいですか。','在這裡排隊就可以嗎？'),s('はい、{最後尾|さいこうび}はあちらです。','是的，隊伍最後在那邊。'),y('ありがとうございます。','謝謝。')],[a('確認排什麼','これは{何|なん}の{列|れつ}ですか。','這是排什麼的隊伍？'),a('問大約等多久','どのくらい{待|ま}ちますか。','大約要等多久？')]),
  scene('place-photo','directions','這裡可以拍照嗎？','先詢問許可，並確認其他限制。',['拍照','照片','閃光燈','攝影','禁止'],[
  y('ここで{写真|しゃしん}を{撮|と}ってもいいですか。','這裡可以拍照嗎？'),s('はい。ただし、フラッシュは{使|つか}わないでください。','可以，不過請不要使用閃光燈。'),y('わかりました。','了解。')],[a('對方也可能拒絕','こちらは{撮影禁止|さつえいきんし}です。','這裡禁止拍攝。','staff'),a('回應限制','はい、{撮|と}りません。','好的，我不拍。')])
-];
+ ,...extraScenes
+].map(s=>({...s,...(replyPractices[s.id]?{replyPractice:replyPractices[s.id]}:{})}));
 export const helpPhrases=[
  {id:'repeat',title:'麻煩再說一次',jp:'すみません、もう{一度|いちど}お{願|ねが}いします。',zh:'不好意思，麻煩再說一次。'},
  {id:'slow',title:'請說慢一點',jp:'もう{少|すこ}しゆっくり{話|はな}していただけますか。',zh:'可以請您再說慢一點嗎？'},
  {id:'write',title:'請寫在這裡',jp:'ここに{書|か}いていただけますか。',zh:'可以請您寫在這裡嗎？'},
  {id:'language',title:'我不太懂日文',jp:'{日本語|にほんご}があまりわかりません。',zh:'我不太懂日文。'}
 ];
-export const sources=[['JNTO：日語與旅遊會話資源','https://www.japan.travel/en/plan/japanese-language/'],['國際交流基金：購物對話教材','https://www.irodori.jpf.go.jp/assets/data/elementary02/pdf/Z_L11.pdf']];
+export const sources=[['JNTO：日語與旅遊會話資源','https://www.japan.travel/en/plan/japanese-language/'],['國際交流基金：購物對話教材','https://www.irodori.jpf.go.jp/assets/data/elementary02/pdf/Z_L11.pdf'],['國際交流基金：入門生活會話教材','https://www.irodori.jpf.go.jp/starter/pdf.html'],['國際交流基金：遺失物與求助情境','https://www.irodori.jpf.go.jp/assets/data/pre-intermediate/pdf/ZZ_L11.pdf'],['JNTO：在日本使用Wi-Fi','https://faq.japan-travel.jnto.go.jp/en/plan/wifi-and-connectivity/']];
