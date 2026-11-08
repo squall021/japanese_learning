@@ -36,6 +36,8 @@
 | `v1.11.0` | 二十四堂文法、144題；第19～24課圖解與三堂新情境，情境合計16課81題 |
 | `checkpoint-20261103-lesson25-27-particles` | 加入第25～27課與が／は・が／と助詞課前的穩定版，commit `99b9ace` |
 | `v1.12.0` | 27堂文法162題、9堂助詞36題與348種變化、17堂情境87題 |
+| `checkpoint-20261108-before-everyday-phrasebook` | 加入日常會話第一版前的v1.12.0，commit `0be6211` |
+| `v1.13.0` | 日常會話第一版：六分類36情境、搜尋、收藏、最近看過、替換需求與大字卡 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
 
@@ -59,6 +61,8 @@ v1.10.0 已通過全部語法與十組自動檢查，涵蓋十三課 63 題流�
 
 v1.12.0 更新前儲存點為 `checkpoint-20261103-lesson25-27-particles`。語法與12組自動檢查通過；瀏覽器實測新助詞四題、文法六題與重載成績，六堂新課390px手機寬度檢查無溢位，桌面比較卡與手機先後圖目視及截圖完成。
 
+v1.13.0 更新前儲存點為 `checkpoint-20261108-before-everyday-phrasebook`。語法與13組自動檢查通過，涵蓋36情境、全部可替換選項與票數組合、搜尋、角色播放、語音佇列／停止、收藏／最近看過、匯出資料驗證與匯入，以及原有課程進度不受查閱影響。本機HTTP檢查確認新增模組與樣式可讀取。本次Work設定停用瀏覽器工具，未完成瀏覽器互動、桌面／手機目視或實際聽音驗證。
+
 第19～24課更新前儲存點：`checkpoint-20261027-1858-before-foundation-19-24`，對應 v1.10.0（`ff2dfdf`）。新版標籤 `v1.11.0` 包含24堂文法、144題、29個新增圖解狀態，以及16堂情境81題。
 
 v1.11.0 的全部語法與11組自動檢查通過，包含新課36題、12個概念複習、合理否定替代答案、圖解切換防護與舊備份。瀏覽器實測第22課六題、5／6結算、替代答案、錯題回饋與重載保存；六堂新課390px手機寬度檢查通過，另檢查桌面圖解與新情境導覽。畫面擷取工具逾時，本次未完成截圖目視核對。
@@ -80,7 +84,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs verify-foundations.mjs verify-connections.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs verify-foundations.mjs verify-connections.mjs verify-phrasebook.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs

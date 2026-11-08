@@ -47,6 +47,7 @@ jobs:
           if [ -f verify-scenarios.mjs ]; then node verify-scenarios.mjs; fi
           if [ -f verify-foundations.mjs ]; then node verify-foundations.mjs; fi
           if [ -f verify-connections.mjs ]; then node verify-connections.mjs; fi
+          if [ -f verify-phrasebook.mjs ]; then node verify-phrasebook.mjs; fi
       - name: Record deployed source
         run: git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
       - name: Upload website
