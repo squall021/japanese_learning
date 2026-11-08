@@ -36,6 +36,8 @@ jobs:
           node --check dist/data.js
           if [ -f dist/guide.js ]; then node --check dist/guide.js; fi
           if [ -f dist/phrasebook/edition-two.js ]; then node --check dist/phrasebook/edition-two.js; fi
+          if [ -f dist/phrasebook/rehearsal.js ]; then node --check dist/phrasebook/rehearsal.js; fi
+          if [ -f dist/phrasebook/pocket.js ]; then node --check dist/phrasebook/pocket.js; fi
           if [ -f dist/handwriting/handwriting.js ]; then node --check dist/handwriting/handwriting.js; fi
           node verify.mjs
           if [ -f verify-handwriting.mjs ]; then node verify-handwriting.mjs; fi
@@ -50,6 +52,7 @@ jobs:
           if [ -f verify-foundations.mjs ]; then node verify-foundations.mjs; fi
           if [ -f verify-connections.mjs ]; then node verify-connections.mjs; fi
           if [ -f verify-phrasebook.mjs ]; then node verify-phrasebook.mjs; fi
+          if [ -f verify-rehearsal.mjs ]; then node verify-rehearsal.mjs; fi
       - name: Record deployed source
         run: git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
       - name: Upload website

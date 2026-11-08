@@ -55,7 +55,7 @@ assert.ok(findScenes('兒童票 幾張','tickets').some(s=>s.id==='ticket-count'
 assert.equal(findScenes('袋子','hotel').length,0);
 assert.equal(findScenes('<script>"').length,0);
 assert.deepEqual(cleanPhrasebook(undefined),emptyPhrasebook());
-assert.deepEqual(cleanPhrasebook({saved:['shop-bag','bad','shop-bag',null],recent:['shop-size','shop-size','bad']}),{saved:['shop-bag'],recent:['shop-size']});
+assert.deepEqual(cleanPhrasebook({saved:['shop-bag','bad','shop-bag',null],recent:['shop-size','shop-size','bad']}),{saved:['shop-bag'],recent:['shop-size'],selections:{}});
 const book=emptyPhrasebook();
 for(const s of scenes)rememberScene(book,s.id);
 assert.equal(book.recent.length,12);assert.equal(book.recent[0],scenes.at(-1).id);
@@ -124,7 +124,7 @@ for(const scene of practiceScenes){
  assert.equal(JSON.stringify(book),before);assert.equal(changed,savedChanges);
 }
 const bothEditions={saved:['shop-bag','help-lost'],recent:['help-lost','shop-bag']};
-assert.deepEqual(cleanPhrasebook(JSON.parse(JSON.stringify(bothEditions))),bothEditions);
+assert.deepEqual(cleanPhrasebook(JSON.parse(JSON.stringify(bothEditions))),{...bothEditions,selections:{}});
 click({fopen:'store-send'});ui.change({dataset:{fslot:'parcelDestination'},value:'airport'});click({fsound:'line:0'});assert.ok(spoken.value.includes('空港'));
 click({fopen:'help-train'});ui.change({dataset:{fslot:'lostItem'},value:'phone'});click({fcard:'line:0'});assert.ok(modal.includes('手機')&&!modal.includes('[['));
 console.log('PASS: 60 everyday conversations / ten categories; all substitutions and search; ten ungraded reply practices / twenty branches with reveal, reset, playback and cards; original 36 IDs and old/new favorites, history and backup compatibility.');

@@ -1,8 +1,21 @@
 import {categories,scenes,slots} from './data.js';
 const ids=new Set(scenes.map(s=>s.id));
-export const emptyPhrasebook=()=>({saved:[],recent:[]});
+export const emptyPhrasebook=()=>({saved:[],recent:[],selections:{}});
 const validList=raw=>Array.isArray(raw)?[...new Set(raw.filter(id=>typeof id==='string'&&ids.has(id)))]:[];
-export const cleanPhrasebook=raw=>({saved:validList(raw?.saved),recent:validList(raw?.recent).slice(0,12)});
+export function cleanSceneSelection(scene,raw){
+ const result={};if(!raw||typeof raw!=='object'||Array.isArray(raw))return result;
+ for(const key of scene.slots)if(Object.hasOwn(raw,key)&&slots[key].options.some(o=>o.id===raw[key]))result[key]=raw[key];
+ return result;
+}
+export function cleanPhrasebook(raw){
+ const selections={};
+ for(const scene of scenes){const value=cleanSceneSelection(scene,raw?.selections?.[scene.id]);if(Object.keys(value).length)selections[scene.id]=value;}
+ return {saved:validList(raw?.saved),recent:validList(raw?.recent).slice(0,12),selections};
+}
+export function setSceneSelection(book,id,key,value){
+ const scene=scenes.find(s=>s.id===id);if(!scene||!scene.slots.includes(key)||!slots[key].options.some(o=>o.id===value))return false;
+ book.selections??={};book.selections[id]={...cleanSceneSelection(scene,book.selections[id]),[key]:value};return true;
+}
 export function rememberScene(book,id){if(!ids.has(id))return false;book.recent=[id,...book.recent.filter(x=>x!==id)].slice(0,12);return true;}
 export function toggleSaved(book,id){if(!ids.has(id))return false;book.saved=book.saved.includes(id)?book.saved.filter(x=>x!==id):[...book.saved,id];return true;}
 export function resolveScene(scene,selection={}){

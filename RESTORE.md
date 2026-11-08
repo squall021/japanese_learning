@@ -42,6 +42,8 @@
 | `v1.14.0` | 四條學習路線、首頁新手入口、隨時可開啟的使用指南與常見操作說明 |
 | `checkpoint-20261109-0007-before-phrasebook-two` | 製作日常會話第二版前的v1.14.0，commit `0a79573` |
 | `v1.15.0` | 日常會話十類60情境、10組接話練習與20條分支，保留第一版收藏與歷史 |
+| `checkpoint-20261109-0041-before-phrasebook-three` | 製作日常會話第三版前的v1.15.0，commit `2f39658` |
+| `v1.16.0` | 60情境逐句角色演練、6條連續路線、自選內容保存與離線旅行小抄 |
 
 標籤固定指向當時版本，不移動、不覆蓋。GitHub Releases 可下載對應原始碼。
 
@@ -71,6 +73,8 @@ v1.14.0 更新前儲存點為 `checkpoint-20261108-1013-before-learning-guide`�
 
 v1.15.0 更新前儲存點為 `checkpoint-20261109-0007-before-phrasebook-two`。語法與13組自動檢查通過，涵蓋60情境、替換選項、10組接話／20條分支的文字揭示、角色切換、播放、重設與大字卡，原36個識別碼、收藏／歷史與舊備份相容。瀏覽器工具已恢復，實測搜尋、機場寄送替換、收藏重載保存、新舊情境接話及跳轉、手機長句大字卡；1440px桌面及390／320px手機檢查無水平溢位，桌面與手機預覽保存在工作區。測試瀏覽器未提供日文聲音，已驗證缺少聲音時的提示，無法確認實際聽音與音色。
 
+v1.16.0 更新前儲存點為 `checkpoint-20261109-0041-before-phrasebook-three`。語法與14組自動檢查通過，涵蓋60個單一情境與6條路線的逐句前進／返回／完成、日文提示重設、合法選項保存、舊備份遷移與新資料匯入、獨立HTML／TXT匯出，以及原有課程成績與複習不受影響。瀏覽器實測三情境9句完整演練、單一情境、票數重載保存、收藏小抄與真實HTML下載；下載檔可獨立開啟並展開對方內容，沒有外部素材或腳本。1440px桌面、390px手機演練與320px路線頁檢查無水平溢位，預覽保存在工作區。日文聲音仍未由測試瀏覽器提供，實際聽音未驗證。
+
 第19～24課更新前儲存點：`checkpoint-20261027-1858-before-foundation-19-24`，對應 v1.10.0（`ff2dfdf`）。新版標籤 `v1.11.0` 包含24堂文法、144題、29個新增圖解狀態，以及16堂情境81題。
 
 v1.11.0 的全部語法與11組自動檢查通過，包含新課36題、12個概念複習、合理否定替代答案、圖解切換防護與舊備份。瀏覽器實測第22課六題、5／6結算、替代答案、錯題回饋與重載保存；六堂新課390px手機寬度檢查通過，另檢查桌面圖解與新情境導覽。畫面擷取工具逾時，本次未完成截圖目視核對。
@@ -92,7 +96,7 @@ git pull --ff-only origin main
 git fetch origin --tags
 git tag -a checkpoint-before-restore-YYYYMMDD-HHMM -m "Checkpoint before restore"
 git push origin checkpoint-before-restore-YYYYMMDD-HHMM
-git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs verify-foundations.mjs verify-connections.mjs verify-phrasebook.mjs
+git restore --source v1.0.0-github --staged --worktree -- dist package.json verify.mjs verify-handwriting.mjs verify-particles.mjs verify-variations.mjs verify-grammar.mjs verify-verbs.mjs verify-te.mjs verify-rules.mjs verify-bridge.mjs verify-scenarios.mjs verify-foundations.mjs verify-connections.mjs verify-phrasebook.mjs verify-rehearsal.mjs
 node --check dist/app.js
 node --check dist/data.js
 node verify.mjs
