@@ -1,5 +1,6 @@
 import {particleLessons,allParticleQuestions} from './data.js';
 import {connectionVariations} from './connections.js';
+import {methodTimeVariations} from './methods-and-time.js';
 
 // Reviewed vocabulary groups and compatible slots. Stable IDs are part of backup history.
 // Questions are assembled only when selected; no network service is used.
@@ -134,7 +135,8 @@ for(const p of people)add('return','ni-he','movement',[p]);
 
 const fixed=new Set(allParticleQuestions.map(q=>`${q.lesson}:${signature(q)}`));
 // Filter exact sentences already used by that lesson's fixed assessment.
-const catalog=[...descriptors,...connectionVariations.map(ready=>({id:ready.id,lesson:ready.lesson,use:ready.use,ready}))].filter(d=>!fixed.has(`${d.lesson}:${signature(buildQuestion(d))}`));
+const reviewed=[...connectionVariations,...methodTimeVariations].map(ready=>({id:ready.id,lesson:ready.lesson,use:ready.use,ready}));
+const catalog=[...descriptors,...reviewed].filter(d=>!fixed.has(`${d.lesson}:${signature(buildQuestion(d))}`));
 const byId=new Map(catalog.map(d=>[d.id,d]));
 export const variationCounts=Object.fromEntries(particleLessons.map(l=>[l.id,catalog.filter(d=>d.lesson===l.id).length]));
 export const variationTotal=catalog.length;

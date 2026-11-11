@@ -2,10 +2,13 @@ import assert from 'node:assert/strict';
 import {particleLessons,allParticleQuestions,usages} from './dist/particles/data.js';
 import {emptyParticles,cleanParticles,isAccepted,recordParticleAnswer,finishParticleLesson,dueParticleUsages,particleQueue} from './dist/particles/model.js';
 import {createParticles,particleText,plainJapanese} from './dist/particles/ui.js';
+import {methodTimeLessons,methodTimeUsages} from './dist/particles/methods-and-time.js';
 
-assert.equal(particleLessons.length,9);
-assert.equal(allParticleQuestions.length,36);
-assert.equal(new Set(allParticleQuestions.map(q=>q.id)).size,36);
+assert.equal(particleLessons.length,11);
+assert.equal(allParticleQuestions.length,44);
+assert.equal(new Set(allParticleQuestions.map(q=>q.id)).size,44);
+assert.equal(Object.keys(usages).length,17);
+assert.deepEqual(particleLessons.slice(-2).map(l=>l.id),['ni-de-method-recipient','made-madeni']);
 for(const l of particleLessons){
   assert.equal(l.examples.length,3);assert.equal(l.questions.length,4);
   for(const e of l.examples){assert.match(e.sentence,/【.+】/);assert.ok(e.scene&&e.relation&&e.note);assert.ok(!/[{}【】]/.test(plainJapanese(e.sentence)));}
@@ -37,7 +40,7 @@ assert.equal(progress.skills.movement.streak,0);
 const review=particleQueue('review',progress,()=>.4,now);
 assert.equal(review.length,2);assert.equal(new Set(review.map(q=>q.id)).size,2);assert.ok(review.every(q=>q.use==='movement'));
 const mixed=particleQueue('mixed',emptyParticles(),()=>.6,now);
-assert.equal(mixed.length,9);assert.equal(new Set(mixed.map(q=>q.lesson)).size,9);
+assert.equal(mixed.length,particleLessons.length);assert.equal(new Set(mixed.map(q=>q.lesson)).size,particleLessons.length);
 finishParticleLesson(progress,'wa',3);finishParticleLesson(progress,'wa',1);
 assert.deepEqual(progress.lessons.wa,{best:3,attempts:2,complete:true});
 assert.deepEqual(cleanParticles(JSON.parse(JSON.stringify(progress))),progress);
@@ -51,8 +54,8 @@ assert.equal(bad.skills.fake,undefined);
 // Exercise the session controller: one persisted answer per question and completion only after all four.
 globalThis.document={querySelector:()=>({focus(){},scrollIntoView(){}})};
 globalThis.window={scrollTo(){}};
-const sessionProgress=emptyParticles();let savedAnswers=0,html='';
-const ui=createParticles({getProgress:()=>sessionProgress,render:()=>{html=ui.renderPage();},changed:answer=>{if(answer)savedAnswers++;},navigate(){},speak(){},stopSpeech(){},detail(){}});
+const sessionProgress=emptyParticles();let savedAnswers=0,html='',detail='';
+const ui=createParticles({getProgress:()=>sessionProgress,render:()=>{html=ui.renderPage();},changed:answer=>{if(answer)savedAnswers++;},navigate(){},speak(){},stopSpeech(){},detail(markup){detail=markup;}});
 const click=dataset=>ui.handle({dataset});
 click({plesson:'ni-he'});click({paction:'practice'});
 assert.equal(sessionProgress.lessons['ni-he'],undefined);
@@ -65,4 +68,22 @@ assert.equal(savedAnswers,4);assert.equal(sessionProgress.lessons['ni-he'].best,
 assert.equal(sessionProgress.lessons['ni-he'].attempts,1);click({paction:'next'});
 assert.equal(sessionProgress.lessons['ni-he'].attempts,1);
 assert.ok(html.includes('本次答對題數'));
-console.log('PASS: nine lessons / 36 contextual questions; all choices explained; に and へ both accepted; usage scheduling and mistake recovery; backup validation; balanced mixed/review queues; duplicate-answer and premature-completion guards.');
+for(const l of methodTimeLessons){
+  click({plesson:l.id});
+  assert.ok(html.includes(l.title));assert.ok(html.includes('本課有 12 種變化組合'));
+  for(const [i,example] of l.examples.entries()){
+    click({pexample:`${l.id}:${i}`});
+    assert.ok(detail.includes(example.relation));
+  }
+  click({paction:'practice'});
+  for(const q of l.questions){
+    const options=[...html.matchAll(/data-panswer="(\d+)"[^>]*>[\s\S]*?<span class="p-choice-letter">[^<]+<\/span><span>([^<]+)<\/span>/g)];
+    const correct=options.find(m=>m[2]===q.answers[0]);assert.ok(correct,q.id);
+    click({panswer:correct[1]});assert.ok(html.includes('✓ 判斷正確'));click({paction:'next'});
+  }
+  assert.deepEqual(sessionProgress.lessons[l.id],{complete:true,best:4,attempts:1});
+}
+assert.equal(savedAnswers,12);
+for(const use of Object.keys(methodTimeUsages))assert.equal(sessionProgress.skills[use].correct,2);
+assert.deepEqual(cleanParticles(JSON.parse(JSON.stringify(sessionProgress))),sessionProgress);
+console.log('PASS: 11 particle lessons / 44 contextual questions; new method, recipient, duration and deadline lessons; balanced mixed/review queues; completion, retry guards and backup validation.');

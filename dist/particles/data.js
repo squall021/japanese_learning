@@ -1,7 +1,9 @@
 // Original short lessons. {word|reading} supplies furigana; 【particle】 is the clickable focus.
 import {connectionParticleLessons,connectionUsages} from './connections.js';
+import {methodTimeLessons,methodTimeUsages} from './methods-and-time.js';
 export const usages = {
   ...connectionUsages,
+  ...methodTimeUsages,
   topic:'は・談論主題', object:'を・動作對象', possession:'の・所屬關係',
   category:'の・名詞修飾', addition:'も・相同資訊', existence:'に・存在位置',
   action:'で・動作場所', movement:'に／へ・移動方向與目的地'
@@ -89,8 +91,11 @@ export const particleLessons = [
     q('nh-4','movement','比較「学校に行きます」和「学校へ行きます」，哪個理解適合一般的上學情境？','{学校|がっこう}に{行|い}きます。／{学校|がっこう}へ{行|い}きます。',['只有「に」正確','兩句都可以','「へ」一定不會到達'],['兩句都可以'],'兩句在這個一般移動情境都成立；「へ」也能指向目的地。',{ '只有「に」正確':'「へ」同樣可表達朝學校移動，在這個情境成立。','「へ」一定不會到達':'「へ」沒有「一定不會到達」的意思，不能這樣推論。'})]}
 ];
 particleLessons.push(...connectionParticleLessons);
+particleLessons.push(...methodTimeLessons);
 export const allParticleQuestions = particleLessons.flatMap(l=>l.questions.map(q=>({...q,lesson:l.id})));
 export const sourceLinks = [
+  ['國際交流基金：まで／までに','https://www.jpf.go.jp/j/project/japanese/teach/tsushin/grammar/200911.html'],
+  ['國際交流基金：で（手段）與に（對象）','https://www.kyozai.jpf.go.jp/kyozai/grammar/text/kanalist/ja/render.do'],
   ['國際交流基金《いろどり》文法筆記','https://www.irodori.jpf.go.jp/assets/data/Grammar_all.pdf'],
   ['東京外國語大學：NへVます','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/026.html'],
   ['東京外國語大學：が・と等格助詞','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/053.html']
