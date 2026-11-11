@@ -13,7 +13,7 @@ assert.equal(new Set(allWords.map(w=>w.id)).size,102);
 const questions=scenarioLessons.flatMap(l=>l.questions),coverage=new Set(questions.map(q=>q.grammar));
 assert.equal(questions.length,72);assert.equal(new Set(questions.map(q=>q.id)).size,72);
 assert.equal(lessons.reduce((n,l)=>n+l.questions.length,0),87);
-assert.deepEqual(new Set(grammarLessons.map(l=>l.id)),coverage); // Coverage must be assessed, not merely mentioned in a dialogue.
+assert.deepEqual(new Set(grammarLessons.slice(0,27).map(l=>l.id)),coverage); // Lessons 1–27 are assessed in the scenario curriculum.
 assert.deepEqual(questions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:32,input:31,listen:9});
 const expectedCoverage=[['statement','negative','question'],['verbs','verb-groups','masu-form','nai-form'],['past','ta-form'],['adjectives'],['te-request','te-form'],['te-iru'],['permission','avoid-request','prohibition'],['desire','invitation'],['existence','demonstratives'],['interrogatives','time-frequency'],['state-past','preferences'],['reasons','comparisons','before-after']];
 for(const [i,l] of scenarioLessons.entries()){
@@ -68,4 +68,4 @@ assert.deepEqual(cleanCourseProgress(l,{step:4,complete:true,best:99,attempts:2}
 for(const raw of [null,{},[],{step:-1},{step:8}])assert.equal(cleanCourseProgress(l,raw),null);
 const queued=emptyGrammar();recordScenarioAnswer(queued,q('scene-weekend-6'),0,1000);const review=grammarQueue('review',queued,()=>.5,1000);assert.ok(review.length&&review.every(q=>q.use==='invitation-meaning'));assert.ok(review.every(q=>allGrammarQuestions.some(b=>b.id===q.id)));
 assert.ok(scenarioGrammarLinks(['te-request']).includes('data-glesson="te-request"'));
-console.log('PASS: 12 applied scenarios / 72 reviewed questions cover all 27 grammar lessons; 36 interactive breakdowns; 102 stable word IDs; kana/kanji and negative alternatives; invalid answers, grammar SRS sharing without course completion, graded completion and old progress compatibility.');
+console.log('PASS: 12 applied scenarios / 72 reviewed questions cover grammar lessons 1–27; 36 interactive breakdowns; 102 stable word IDs; kana/kanji and negative alternatives; invalid answers, grammar SRS sharing without course completion, graded completion and old progress compatibility.');

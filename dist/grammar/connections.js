@@ -41,6 +41,7 @@ export const connectionLessons=[
     c('sq-6','sequence-order','「明日、ごはんを食べた後で、勉強します」哪個理解正確？',['安排明天先吃飯，再讀書。','有た形，所以一定是昨天。','安排明天先讀書，再吃飯。'],['安排明天先吃飯，再讀書。'],'後で前的た形表示吃飯先完成；明日與勉強します說明這是明天的安排。',{'有た形，所以一定是昨天。':'這個從句的た形是相對於後續動作的完成，不把整句限定為昨天。','安排明天先讀書，再吃飯。':'食べた後で是吃飯之後才讀書。'})]}
 ];
 const card=(label,jp,zh,note,steps)=>({label,jp,zh,note,visual:'relation',steps});
+export {p as lessonPart,ex as lessonExample,c as lessonChoice,b as lessonBuild,f as lessonTransform,card as relationCard};
 export const connectionDecks={
  reasons:{title:'先找原因，再接結果',intro:'每張卡把原因與決定分開。點選不同詞類，看看から前面怎麼接。',cards:[
   card('名詞：下雨','{雨|あめ}ですから、{出|で}かけません。','因為下雨，所以不出門。','名詞本課保留です，再接から；不是從下雨開始的時間意思。',[['原因','雨です'],['連接','から'],['決定','出かけません']]),

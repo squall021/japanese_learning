@@ -1,8 +1,10 @@
 import {particleText as text,plainJapanese} from '../particles/ui.js';
 import {connectionDecks} from './connections.js';
+import {actionFormDecks} from './action-forms.js';
 const card=(label,jp,zh,note,visual,extra={})=>({label,jp,zh,note,visual,...extra});
 export const foundationDecks={
   ...connectionDecks,
+  ...actionFormDecks,
   existence:{title:'看位置，也看句子在說什麼',intro:'點選房間裡的物品、動物或人物。每張圖都能對照完整句子。',cards:[
     card('桌上的書','{机|つくえ}の{上|うえ}に{本|ほん}があります。','桌上有書。','書是物品，用あります。机の上是位置，用に連接。','book'),
     card('椅下的貓','{猫|ねこ}はいすの{下|した}にいます。','貓在椅子下面。','貓是動物，用います。已知道在找貓，可先用猫は提出話題。','cat'),

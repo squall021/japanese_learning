@@ -11,7 +11,7 @@ import {createGrammar} from './dist/grammar/ui.js';
 import {scenarioLessons} from './dist/scenarios/data.js';
 import {scenarioVerdict} from './dist/scenarios/model.js';
 
-assert.deepEqual(grammarLessons.slice(24).map(l=>l.id),['reasons','comparisons','before-after']);
+assert.deepEqual(grammarLessons.slice(24,27).map(l=>l.id),['reasons','comparisons','before-after']);
 assert.equal(connectionLessons.flatMap(l=>l.questions).length,18);
 assert.equal(Object.keys(connectionSkills).length,6);assert.equal(Object.keys(connectionUsages).length,5);
 let states=0;
