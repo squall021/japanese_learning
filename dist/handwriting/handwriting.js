@@ -20,6 +20,8 @@ class WritingPractice {
     this.drafts = new Map();
     this.abort = new AbortController();
     this.frame = null;
+    this.inkFrame = null;
+    this.resumeDemo = null;
     this.playing = false;
     this.paused = false;
     this.currentStroke = null;
@@ -66,6 +68,7 @@ class WritingPractice {
     return `描寫 ${p.trace || 0} 次 · 自由書寫 ${p.free || 0} 次`;
   }
   render() {
+    this.cancelInk();
     const seq = this.options.sequence;
     const idx = seq.indexOf(this.char);
     const progress = this.progressText();
@@ -140,12 +143,18 @@ class WritingPractice {
       const rect = board.getBoundingClientRect();
       const events = e.getCoalescedEvents?.();
       for (const ev of events?.length ? events : [e]) this.appendPoint(ev, rect);
-      this.livePath.setAttribute('d', pathFromPoints(this.currentStroke.points));
+      if (this.inkFrame === null) {
+        this.inkFrame = requestAnimationFrame(() => {
+          this.inkFrame = null;
+          if (this.currentStroke) this.livePath.setAttribute('d', pathFromPoints(this.currentStroke.points));
+        });
+      }
     });
     const finish = (e, cancelled = false) => {
       if (this.currentStroke?.pointer !== e.pointerId) return;
       if (!cancelled) this.appendPoint(e, board.getBoundingClientRect());
       const points = this.currentStroke.points;
+      this.cancelInk();
       this.currentStroke = null;
       if (board.hasPointerCapture(e.pointerId)) board.releasePointerCapture(e.pointerId);
       if (!cancelled && strokeLength(points) >= 1.5) this.draft.strokes.push(points);
@@ -168,8 +177,13 @@ class WritingPractice {
   cancelAnimation() {
     if (this.frame !== null) cancelAnimationFrame(this.frame);
     this.frame = null; this.playing = false; this.paused = false;
+    this.resumeDemo = null;
     const pause = this.query('[data-hw="pause"]');
     if (pause) { pause.disabled = true; pause.textContent = '暫停'; }
+  }
+  cancelInk() {
+    if (this.inkFrame !== null) cancelAnimationFrame(this.inkFrame);
+    this.inkFrame = null;
   }
   animate(paths, own = false, startIndex = 0) {
     this.cancelAnimation();
@@ -193,7 +207,7 @@ class WritingPractice {
     nextPath();
     const tick = time => {
       if (last === null) last = time;
-      if (!this.paused) elapsed += Math.min(50, time - last);
+      elapsed += Math.min(50, time - last);
       last = time;
       path.style.strokeDashoffset = String(Math.max(0, length * (1 - elapsed / duration)));
       if (elapsed >= duration + 200) {
@@ -208,7 +222,11 @@ class WritingPractice {
       }
       this.frame = requestAnimationFrame(tick);
     };
-    this.frame = requestAnimationFrame(tick);
+    this.resumeDemo = () => {
+      last = null;
+      this.frame = requestAnimationFrame(tick);
+    };
+    this.resumeDemo();
   }
   playDemo(single = false) {
     if (this.currentStroke) return;
@@ -237,7 +255,7 @@ class WritingPractice {
     comparison.hidden = false;
     comparison.innerHTML = `<p class="eyebrow">完成一次練習，就是進步</p><h3>把你的筆跡，和範例放在一起。</h3><p>${countFeedback(this.draft.strokes.length, this.template.paths.length)}</p><div class="hw-compare-pair"><figure>${this.svg(this.paths('hw-demo-stroke'), '標準筆順範例')}<figcaption>範例</figcaption></figure><figure>${this.svg(this.draft.strokes.map(s => `<path d="${pathFromPoints(s)}" class="hw-user-stroke"/>`).join(''), '你的手寫筆跡')}<figcaption>你的筆跡</figcaption></figure></div><p class="hw-note">上方寫字板也疊上範字，方便比較。本次只記錄練習與筆畫數，不判定字形正確或熟練。</p><div class="button-row"><button class="secondary" data-hw="again">再寫一次</button>${this.mode === 'trace' ? '<button class="primary" data-mode="free">試試自己寫 →</button>' : '<button class="primary" data-hw="next">練習下一個 →</button>'}</div>`;
     this.message('已保存本次練習次數。向下看看範字對照。');
-    comparison.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    comparison.scrollIntoView({ block: 'nearest', behavior: 'auto' });
   }
   switchMode(mode) {
     this.cancelAnimation(); this.currentStroke = null;
@@ -260,7 +278,15 @@ class WritingPractice {
     const action = button.dataset.hw;
     if (action === 'close') { this.close(); return; }
     if (action === 'play' || action === 'step') { this.playDemo(action === 'step'); return; }
-    if (action === 'pause') { this.paused = !this.paused; button.textContent = this.paused ? '繼續播放' : '暫停'; return; }
+    if (action === 'pause') {
+      this.paused = !this.paused;
+      if (this.paused) {
+        if (this.frame !== null) cancelAnimationFrame(this.frame);
+        this.frame = null;
+      } else this.resumeDemo?.();
+      button.textContent = this.paused ? '繼續播放' : '暫停';
+      return;
+    }
     if (action === 'sound') { this.options.speak(this.char === 'を' || this.char === 'ヲ' ? 'お' : this.char, button); return; }
     if (action === 'complete') { this.complete(); return; }
     if (action === 'replay') {
@@ -284,7 +310,7 @@ class WritingPractice {
   }
   close() { this.dialog.close(); }
   destroy() {
-    this.cancelAnimation(); this.abort.abort(); this.dialog.remove();
+    this.cancelInk(); this.cancelAnimation(); this.abort.abort(); this.dialog.remove();
     if (active === this) active = null;
     this.options.onClose();
   }

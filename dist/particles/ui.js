@@ -4,10 +4,10 @@ import {variationQueue,variationCounts,variationTotal,noteVariationShown} from '
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const plainJapanese=s=>s.replace(/\{([^|{}]+)\|[^{}]+\}/g,'$1').replace(/[【】]/g,'');
-export function particleText(s,focus=''){
+export function particleText(s,focus='',focusReading=true){
   return s.split(/(\{[^|{}]+\|[^{}]+\}|【[^】]+】)/g).map(part=>{
     const r=part.match(/^\{([^|{}]+)\|([^{}]+)\}$/);
-    if(r)return `<span class="reading" tabindex="0"><ruby lang="ja">${esc(r[1])}<rt>${esc(r[2])}</rt></ruby></span>`;
+    if(r)return `<span class="reading"${focusReading?' tabindex="0"':''}><ruby lang="ja">${esc(r[1])}<rt>${esc(r[2])}</rt></ruby></span>`;
     const p=part.match(/^【([^】]+)】$/);
     if(p)return focus?`<button class="p-particle" data-pexample="${esc(focus)}" aria-label="助詞「${esc(p[1])}」的本句用途">${esc(p[1])}</button>`:`<mark>${esc(p[1])}</mark>`;
     return esc(part).replaceAll('＿','<span class="p-blank" aria-label="空格">？</span>');
@@ -74,7 +74,7 @@ export function createParticles(api){
         if(view!=='question'||session.selected!==null)return true;
         const q=session.queue[session.index],choice=session.options[Number(d.panswer)];if(!q.options.includes(choice))return true;
         session.selected=choice;const correct=recordParticleAnswer(progress(),q,choice);if(correct)session.score++;else session.missed.push(q.use);
-        api.changed(true);refresh('.p-feedback');document.querySelector('.p-feedback')?.scrollIntoView({block:'nearest',behavior:'smooth'});return true;
+        api.changed(true);refresh('.p-feedback');document.querySelector('.p-feedback')?.scrollIntoView({block:'nearest',behavior:'auto'});return true;
       }
       if(!d.paction)return false;
       api.stopSpeech();

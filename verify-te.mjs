@@ -47,7 +47,7 @@ globalThis.document={querySelector:()=>({focus(){},scrollIntoView(){}})};globalT
 const p=emptyGrammar();let html='',saved=0;
 const ui=createGrammar({getProgress:()=>p,render:()=>{html=ui.renderPage();},changed:answer=>{if(answer)saved++;},navigate(){},speak(){},stopSpeech(){}});
 const click=dataset=>ui.handle({dataset});
-const choose=value=>{const m=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(value)}</span>`));assert.ok(m,value);click({ganswer:m[1]});};
+const choose=value=>{const m=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(value,'',false)}</span>`));assert.ok(m,value);click({ganswer:m[1]});};
 click({glesson:'te-form'});assert.ok(html.includes('GRAMMAR 10'));assert.ok(!html.includes('GRAMMAR 010'));
 click({gvword:'go'});click({gvstep:'1'});assert.ok(html.includes('這一組直接記'));assert.ok(html.includes('行って'));
 click({gaction:'practice'});click({ggroup:'g1'});click({gaction:'form'});choose(verbById('read').te);

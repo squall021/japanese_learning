@@ -109,7 +109,7 @@ for(const l of grammarLessons){
       // Build matching index from unique rendered text, including furigana markup.
       const allOptions=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)];
       const correct=question.type==='transform'?question.answers.at(-1):question.answers[0];
-      const option=allOptions.find(m=>m[2].includes(`<span>${particleText(correct)}</span>`));assert.ok(option,question.id);
+      const option=allOptions.find(m=>m[2].includes(`<span>${particleText(correct,'',false)}</span>`));assert.ok(option,question.id);
       click({ganswer:option[1]});click({ganswer:option[1]});
     }
     assert.ok(html.includes('✓ 判斷正確'),question.id);assert.ok(!html.includes('undefined'));
@@ -165,7 +165,7 @@ for(const id of ['ve-1','ve-2','ve-3','ve-4','ve-5']){
   if(q.type==='build'){
     const order=q.id==='ve-5'?q.orders[1]:q.orders[0];for(const i of order)click({gtile:String(i)});click({gaction:'submit'});
   }else{
-    const option=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(q.answers[0])}</span>`));assert.ok(option);click({ganswer:option[1]});
+    const option=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(q.answers[0],'',false)}</span>`));assert.ok(option);click({ganswer:option[1]});
   }
   assert.ok(html.includes('✓ 判斷正確'));click({gaction:'next'});
 }

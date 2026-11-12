@@ -50,7 +50,7 @@ globalThis.document={querySelector:()=>({focus(){},scrollIntoView(){}})};globalT
 const progress=emptyGrammar();let html='',answers=0,saves=0;
 const ui=createGrammar({getProgress:()=>progress,render:()=>{html=ui.renderPage();},changed:count=>{count?answers++:saves++;},navigate(){},speak(){},stopSpeech(){}});
 const click=dataset=>ui.handle({dataset});
-const choose=option=>{const m=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(option)}</span>`));assert.ok(m,option);click({ganswer:m[1]});};
+const choose=option=>{const m=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(option,'',false)}</span>`));assert.ok(m,option);click({ganswer:m[1]});};
 click({glesson:'masu-form'});assert.ok(html.includes('動詞變化，一次看一步'));
 click({gvgroup:'g2'});click({gvword:'wake'});click({gvstep:'1'});assert.ok(html.includes('拿掉「る」'));
 click({gvgroup:'g3'});click({gvword:'come'});click({gvstep:'2'});assert.ok(html.includes('来ます'));

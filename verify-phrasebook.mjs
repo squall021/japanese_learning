@@ -68,7 +68,8 @@ toggleSaved(book,'shop-bag');assert.equal(book.saved.length,0);
 
 let html='',modal='',spoken,changed=0,renders=0,stopped=0,navigated=0;
 const result={innerHTML:''};
-globalThis.document={querySelector:s=>s==='#f-results'?result:{focus(){},scrollIntoView(){}}};
+const count={textContent:'60 個情境'};
+globalThis.document={querySelector:s=>s==='#f-result-list'?result:s==='#f-result-count'?count:{focus(){},scrollIntoView(){}}};
 globalThis.window={scrollTo(){}};
 const ui=createPhrasebook({getState:()=>book,render:()=>{renders++;html=ui.renderPage();},changed:()=>changed++,speak:(value,button,opts)=>{spoken={value,opts};},stopSpeech:()=>stopped++,detail:s=>modal=s,navigate:()=>navigated++});
 const click=d=>assert.equal(ui.handle({dataset:d}),true);

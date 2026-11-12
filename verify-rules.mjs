@@ -58,7 +58,7 @@ globalThis.document={querySelector:()=>({focus(){},scrollIntoView(){}})};globalT
 const p=emptyGrammar();let html='',saved=0,speech=[];
 const ui=createGrammar({getProgress:()=>p,render:()=>{html=ui.renderPage();},changed:answer=>{if(answer)saved++;},navigate(){},speak(s){speech.push(s);},stopSpeech(){}});
 const click=dataset=>ui.handle({dataset});
-const choose=value=>{const m=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(value)}</span>`));assert.ok(m,value);click({ganswer:m[1]});};
+const choose=value=>{const m=[...html.matchAll(/data-ganswer="(\d+)"[^>]*>([\s\S]*?)<\/button>/g)].find(m=>m[2].includes(`<span>${particleText(value,'',false)}</span>`));assert.ok(m,value);click({ganswer:m[1]});};
 for(const id of ids){
   click({glesson:id});assert.ok(html.includes('圖解：座る'));click({gvword:'photo'});click({gvstep:'1'});
   assert.ok(html.includes(particleText(ruleWord('photo')[id==='avoid-request'?'nai':'te']+suffixes[id==='avoid-request'?'avoid':id])));
