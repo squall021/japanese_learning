@@ -4,3 +4,8 @@
 .sc-application-link{display:inline-block;text-decoration:none;margin-top:6px;font-size:12px}.sc-curriculum-map{font-size:11px;color:#7b8e6c;margin-top:18px}.sc-curriculum-map summary{cursor:pointer;line-height:1.9}.sc-section-title{scroll-margin-top:85px}.sc-grammar-links button{white-space:normal;overflow-wrap:anywhere}
 
 .options button .sc-choice-text{display:block;min-width:0;flex:1;font-size:inherit;background:none;padding:0;border-radius:0;line-height:2;overflow-wrap:anywhere}.options button .sc-choice-text span{font-size:inherit;background:none;padding:0;border-radius:0}.options button .sc-choice-text .reading{display:inline-block}
+
+.sc-notice{padding:18px 22px;margin:0 0 24px;border:1px solid #dce5ce;background:#eff3e8;border-radius:12px}
+.sc-notice h2{font-size:18px;margin:0 0 10px}.sc-notice h2 small{margin-inline-start:6px;color:#52644d;font-weight:400}
+.sc-notice p{margin:3px 0;overflow-wrap:anywhere}.sc-notice p[lang=ja]{font:19px/2.15 var(--serif)}
+.sc-notice-translation{color:#52644d;font-size:13px}.sc-transcript{margin:10px 0 18px}.sc-transcript summary{cursor:pointer}

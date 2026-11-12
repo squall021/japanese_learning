@@ -7,12 +7,14 @@ import {plainJapanese,particleText} from './dist/particles/ui.js';
 import {verbById} from './dist/grammar/verbs.js';
 import {actionFormDecks,actionFormLessons,actionFormSkills} from './dist/grammar/action-forms.js';
 import {connectingIdeaDecks,connectingIdeaLessons,connectingIdeaSkills} from './dist/grammar/connecting-ideas.js';
+import {preIntermediateDecks,preIntermediateLessons,preIntermediateSkills} from './dist/grammar/pre-intermediate.js';
 
-assert.equal(grammarLessons.length,35);assert.equal(allGrammarQuestions.length,210);
-assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,210);
-assert.equal(Object.keys(grammarSkills).length,70);
-assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:99,build:49,transform:54,conjugate:8});
-assert.deepEqual(grammarLessons.slice(27).map(l=>l.id),['potential-form','verb-pairs-results','plain-forms','noun-modifiers','past-experience','giving-advice','obligation-and-exemption','tara-conditions']);
+assert.equal(grammarLessons.length,38);assert.equal(allGrammarQuestions.length,228);
+assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,228);
+assert.equal(Object.keys(grammarSkills).length,76);
+assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:110,build:52,transform:58,conjugate:8});
+assert.deepEqual(grammarLessons.slice(27,35).map(l=>l.id),['potential-form','verb-pairs-results','plain-forms','noun-modifiers','past-experience','giving-advice','obligation-and-exemption','tara-conditions']);
+assert.deepEqual(grammarLessons.slice(35).map(l=>l.id),['try-te-miru','prepare-te-oku','explain-n-desu']);
 for(const l of grammarLessons){
   assert.equal(l.examples.length,3);assert.equal(l.questions.length,6);assert.ok(l.notes.length>=3);
   for(const e of l.examples){
@@ -118,12 +120,13 @@ for(const l of grammarLessons){
   assert.deepEqual(progress.lessons[l.id],{complete:true,best:6,attempts:1});click({gaction:'next'});assert.equal(progress.lessons[l.id].attempts,1);
   assert.ok(html.includes('本次答對題數'));
 }
-assert.equal(saved,210);click({gaction:'retry'});assert.ok(html.includes('如果……就……'));
+assert.equal(saved,228);click({gaction:'retry'});assert.ok(html.includes('先交代情況，再開口問'));
 assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(progress))),progress);
-for(const skill of [...Object.keys(actionFormSkills),...Object.keys(connectingIdeaSkills)])assert.equal(progress.skills[skill].correct,3);
-const interactiveDecks={...actionFormDecks,...connectingIdeaDecks};
+for(const skill of [...Object.keys(actionFormSkills),...Object.keys(connectingIdeaSkills),...Object.keys(preIntermediateSkills)])assert.equal(progress.skills[skill].correct,3);
+const interactiveDecks={...actionFormDecks,...connectingIdeaDecks,...preIntermediateDecks};
 assert.equal(Object.values(connectingIdeaDecks).flatMap(deck=>deck.cards).length,19);
-for(const lesson of [...actionFormLessons,...connectingIdeaLessons]){
+assert.equal(Object.values(preIntermediateDecks).flatMap(deck=>deck.cards).length,9);
+for(const lesson of [...actionFormLessons,...connectingIdeaLessons,...preIntermediateLessons]){
   click({glesson:lesson.id});
   const {cards}=interactiveDecks[lesson.id];
   for(const [index,card] of cards.entries()){
@@ -138,7 +141,7 @@ for(const lesson of [...actionFormLessons,...connectingIdeaLessons]){
   }
   click({gfoundation:'9'});assert.ok(html.includes(`data-gfoundation="${cards.length-1}" aria-pressed="true"`));
 }
-assert.equal(saved,210);
+assert.equal(saved,228);
 click({glesson:'tara-conditions'});click({gaction:'practice'});
 choose('降りましたら');assert.ok(html.includes('降りましたら是較禮貌的接法'));
 assert.equal(progress.skills['tara-form'].needsReview,true);
@@ -166,4 +169,4 @@ for(const id of ['ve-1','ve-2','ve-3','ve-4','ve-5']){
   }
   assert.ok(html.includes('✓ 判斷正確'));click({gaction:'next'});
 }
-console.log('PASS: 35 grammar lessons / 105 annotated examples / 210 questions; interactive diagrams for lessons 28–35; alternatives and word order; furigana; balanced mixed practice; review scheduling and backup compatibility.');
+console.log('PASS: 38 grammar lessons / 114 annotated examples / 228 questions; interactive diagrams for lessons 28–38; alternatives and word order; furigana; balanced mixed practice; review scheduling and backup compatibility.');

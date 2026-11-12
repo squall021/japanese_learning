@@ -3,6 +3,7 @@ import {foundationLessons,foundationSkills} from './foundations-data.js';
 import {connectionLessons,connectionSkills} from './connections.js';
 import {actionFormLessons,actionFormSkills} from './action-forms.js';
 import {connectingIdeaLessons,connectingIdeaSkills} from './connecting-ideas.js';
+import {preIntermediateLessons,preIntermediateSkills} from './pre-intermediate.js';
 const token=(jp,role,note)=>({jp,role,note});
 const topic=(jp,meaning)=>token(jp,'topic',`${meaning}，是這句話談論的對象。`);
 const wa=()=>token('は','particle','把前面的對象提出來當話題。這個助詞寫作「は」，讀作「わ」。');
@@ -28,6 +29,7 @@ export const grammarSkills={
   ...connectionSkills,
   ...actionFormSkills,
   ...connectingIdeaSkills,
+  ...preIntermediateSkills,
   'statement-meaning':'名詞句・說明身分與類別','statement-order':'名詞句・話題與句子順序',
   'negative-meaning':'否定句・理解「不是」','negative-form':'否定句・名詞句尾變化',
   'question-form':'疑問句・「ですか」的問法','question-reply':'疑問句・依事實回答',
@@ -402,8 +404,11 @@ grammarLessons.push(...foundationLessons);
 grammarLessons.push(...connectionLessons);
 grammarLessons.push(...actionFormLessons);
 grammarLessons.push(...connectingIdeaLessons);
+grammarLessons.push(...preIntermediateLessons);
 export const allGrammarQuestions=grammarLessons.flatMap(l=>l.questions.map(q=>({...q,lesson:l.id})));
 export const grammarSources=[
+  ['東京外國語大學：てみる與ておく','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/088.html'],
+  ['國際交流基金：んです','https://www.kyozai.jpf.go.jp/kyozai/material/BTS00120/ja/render.do'],
   ['東京外國語大學：普通形與名詞修飾','https://www.coelang.tufs.ac.jp/mt/ja/gmod/steplist.html'],
   ['國際交流基金：經驗、建議、義務與條件的文法解說','https://www.kyozai.jpf.go.jp/kyozai/grammar/text/kanalist/ja/render.do'],
   ['東京外國語大學：可能形','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/074.html'],

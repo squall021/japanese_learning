@@ -2,6 +2,13 @@ import {particleText as text,plainJapanese} from '../particles/ui.js';
 import {scenarioGrammarIds,scenarioGrammarLabel} from './data.js';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const scenarioGrammarLinks=ids=>'<div class="sc-grammar-links" aria-label="相關文法課程">'+ids.map(id=>'<button class="secondary" data-glesson="'+id+'">'+scenarioGrammarLabel(id)+' ↗</button>').join('')+'</div>';
+export function scenarioNotice(lesson,translate){
+  if(!lesson.notice)return '';
+  return `<section class="sc-notice" aria-labelledby="sc-notice-title">
+    <h2 id="sc-notice-title">車站公告 <small>模擬情境</small></h2>
+    ${lesson.notice.lines.map(([jp,zh])=>`<p lang="ja">${text(jp)}</p>${translate?`<p class="sc-notice-translation">${esc(zh)}</p>`:''}`).join('')}
+  </section>`;
+}
 export function scenarioTeaching(l,index,tokenIndex){
   const p=l.points[index]||l.points[0],part=p.parts[tokenIndex]||p.parts[0],form=p.parts.some(t=>t.jp.includes('→'));
   const speech=form?'':'<button class="g-sound" data-action="speak" data-text="'+esc(plainJapanese(p.parts.map(t=>t.jp).join('')+'。'))+'" aria-label="聽這個情境例句">♪</button>';
@@ -12,5 +19,5 @@ export function scenarioCourseList(lessons,progress,icon){
   const applied=lessons.filter(l=>l.kind==='application'),covered=scenarioGrammarIds({questions:applied.flatMap(l=>l.questions)});
   const legacy=lessons.filter(l=>l.kind!=='application'),total=lessons.reduce((n,l)=>n+l.questions.length,0);
   const cards=items=>'<div class="course-list">'+items.map(l=>{const i=lessons.indexOf(l),p=progress[l.id];return '<button class="course-card" data-start="'+l.id+'"><div class="course-cover '+l.color+'"><span class="course-num">LESSON '+String(i+1).padStart(2,'0')+'</span>'+icon(l.icon)+'<span class="course-ja">'+(l.ja||['はじめまして','コーヒー','いくらですか','どこですか','好きです'][i])+'</span></div><div class="course-info"><small>'+l.category+' · '+l.time+' 分鐘</small><h2>'+l.title+'</h2><p>'+l.desc+'</p>'+scenarioCourseTopics(l)+'<div class="course-bottom"><span class="pill">'+(p?.complete?'✓ 已完成':p?'學習中':l.kind==='application'?'文法應用':'初級入門')+'</span>'+(Number.isInteger(p?.best)?'<small>最佳 '+p.best+' / '+l.questions.length+' 題</small>':icon('arrow'))+'</div></div></button>';}).join('')+'</div>';
-  return '<section class="sc-overview"><h2>學過的文法，放進真實對話</h2><p>'+legacy.length+' 堂入門情境＋'+applied.length+' 堂文法應用，共 '+total+' 題。應用題涵蓋目前 '+covered.length+' 堂基礎文法，可自由選課。答錯的概念會加入文法複習；情境成績獨立保存。</p><a class="secondary sc-application-link" href="#scenario-application">直接看 '+applied.length+' 堂文法應用 ↓</a><details class="sc-curriculum-map"><summary>回看對應的基礎文法（'+covered.length+' 課）</summary>'+scenarioGrammarLinks(covered)+'</details></section><div class="section-title"><h2>先從一段簡單對話開始</h2><span>5 堂入門情境</span></div>'+cards(lessons.filter(l=>l.kind!=='application'))+'<div class="section-title sc-section-title" id="scenario-application"><h2>把文法用在生活裡</h2><span>'+applied.length+' 堂應用 · 每堂 6 題</span></div>'+cards(applied);
+  return '<section class="sc-overview"><h2>學過的文法，放進真實對話</h2><p>'+legacy.length+' 堂入門情境＋'+applied.length+' 堂文法應用，共 '+total+' 題。應用題涵蓋目前 '+covered.length+' 堂文法，可自由選課。答錯的概念會加入文法複習；情境成績獨立保存。</p><a class="secondary sc-application-link" href="#scenario-application">直接看 '+applied.length+' 堂文法應用 ↓</a><details class="sc-curriculum-map"><summary>回看對應的文法（'+covered.length+' 課）</summary>'+scenarioGrammarLinks(covered)+'</details></section><div class="section-title"><h2>先從一段簡單對話開始</h2><span>5 堂入門情境</span></div>'+cards(lessons.filter(l=>l.kind!=='application'))+'<div class="section-title sc-section-title" id="scenario-application"><h2>把文法用在生活裡</h2><span>'+applied.length+' 堂應用 · 每堂 6 題</span></div>'+cards(applied);
 }

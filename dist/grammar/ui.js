@@ -26,10 +26,20 @@ export function createGrammar(api){
   }
   function overview(){
     const p=progress(),done=grammarLessons.filter(l=>p.lessons[l.id]?.complete).length,due=dueGrammarSkills(p),weak=Object.keys(grammarSkills).filter(id=>p.skills[id]?.needsReview);
+    const preIntermediate=grammarLessons.filter(l=>l.level==='pre-intermediate');
+    const courses=lessons=>`<div class="g-course-grid">${lessons.map(l=>{
+      const i=grammarLessons.indexOf(l),r=p.lessons[l.id];
+      return `<button class="g-course" data-glesson="${l.id}"><div class="g-course-top"><span class="eyebrow">GRAMMAR ${String(i+1).padStart(2,'0')}</span><span class="pill">${r?.complete?'✓ 已完成':'6 題練習'}</span></div><span class="g-course-symbol" lang="ja">${l.symbol}</span><h3>${l.title}</h3><p>${l.goal}</p><span class="g-course-bottom">${r?.complete?`最佳 ${r.best} / 6 題`:l.guide==='groups'?'看圖解 → 認路線 → 練判斷':l.guide||l.foundation?'看圖解 → 看變化 → 練組句':'看情境 → 拆句 → 組句'} <span aria-hidden="true">↗</span></span></button>`;
+    }).join('')}</div>`;
     return `${heading('BUILD A SENTENCE, SHARE AN IDEA','把詞語，變成你想說的話。','從介紹身分，到日常行動與感受。一次看懂一個變化。')}
       <section class="g-hero"><div><span class="eyebrow">JAPANESE FOR YOUR EVERYDAY</span><h2>把今天的日常，<br>說成日文。</h2><p>${grammarLessons.length} 堂短課 · ${grammarLessons.reduce((n,l)=>n+l.examples.length,0)} 組可點擊例句 · ${allGrammarQuestions.length} 道練習</p><div class="g-progress"><span>已完成 ${done} / ${grammarLessons.length} 課</span><progress max="${grammarLessons.length}" value="${done}" aria-label="基礎文法課程完成數"></progress></div></div><div class="g-hero-sentences" aria-hidden="true"><span>学生<b>です</b>。</span><span>本を読み<b>ます</b>。</span><span>きのう、読み<b>ました</b>。</span></div></section>
-      <div class="section-title"><h2>先理解，再親手組一句</h2><span>每課約 5–12 分鐘 · 可自由選課</span></div>
-      <div class="g-course-grid">${grammarLessons.map((l,i)=>{const r=p.lessons[l.id];return `<button class="g-course" data-glesson="${l.id}"><div class="g-course-top"><span class="eyebrow">GRAMMAR ${String(i+1).padStart(2,'0')}</span><span class="pill">${r?.complete?'✓ 已完成':'6 題練習'}</span></div><span class="g-course-symbol" lang="ja">${l.symbol}</span><h3>${l.title}</h3><p>${l.goal}</p><span class="g-course-bottom">${r?.complete?`最佳 ${r.best} / 6 題`:l.guide==='groups'?'看圖解 → 認路線 → 練判斷':l.guide||l.foundation?'看圖解 → 看變化 → 練組句':'看情境 → 拆句 → 組句'} <span aria-hidden="true">↗</span></span></button>`;}).join('')}</div>
+      <div class="section-title"><h2>基礎文法</h2><a class="secondary g-level-link" href="#pre-intermediate-grammar">前往初中級 ↓</a></div>
+      ${courses(grammarLessons.filter(l=>l.level!=='pre-intermediate'))}
+      <section class="g-level" id="pre-intermediate-grammar" aria-labelledby="g-pre-intermediate-title">
+        <div class="section-title"><h2 id="g-pre-intermediate-title">初中級</h2><span>${preIntermediate.length} 堂課 · 可自由選課</span></div>
+        ${courses(preIntermediate)}
+        <button class="secondary g-level-link" data-start="scene-station-transfer">情境應用 · 車站轉乘出了狀況 ↗</button>
+      </section>
       <div class="g-practice-grid"><section><span class="eyebrow">PUT IT TOGETHER</span><h3>換個情境，再想一次</h3><p>每課隨機抽一題，共 ${grammarLessons.length} 題，把身分、行動與描述放回情境裡。</p>${action(`開始 ${grammarLessons.length} 題綜合練習 →`,'mixed','secondary')}</section><section><span class="eyebrow">REVISIT & REMEMBER</span><h3>${due.length?`${due.length} 個概念，等你再見一次`:'讓學過的句型，慢慢留下來'}</h3><p>${due.length?'每個待複習概念抽兩題，重新留意句子裡的線索。':'答錯的概念會優先加入複習，答對後也會安排間隔複習。'}</p>${action(due.length?'複習易錯與到期概念 →':'目前沒有待複習概念','review','secondary',!due.length)}</section></div>
       ${weak.length?`<section class="g-weak"><h2>再留意這幾個地方</h2><p>同一概念連續答對兩次後移出易錯清單，之後仍會間隔複習。</p><div class="button-row">${weak.map(id=>`<button class="secondary" data-glesson="${allGrammarQuestions.find(q=>q.use===id).lesson}">${grammarSkills[id]} · 回看教學</button>`).join('')}</div></section>`:''}
       <details class="g-sources"><summary>教材與複習方式</summary><p>本站編寫繁體中文解說與練習，參照入門教材核對基本用法。完成表示已做完本課六題，最佳分數保留每組練習首次送出答案的結果。</p><p>答錯概念立即加入複習；答對後依連續答對次數安排約 1、3、7、14 天後複習。練習題取自這 ${grammarLessons.length} 課的 ${allGrammarQuestions.length} 題；綜合練習會隨機抽題。作答即時保存，離開後可重新開始一組。進度可於「我的學習」匯出。</p>${grammarSources.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener">${label} ↗</a>`).join('')}</details>`;
