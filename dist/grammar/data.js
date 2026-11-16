@@ -5,6 +5,7 @@ import {actionFormLessons,actionFormSkills} from './action-forms.js';
 import {connectingIdeaLessons,connectingIdeaSkills} from './connecting-ideas.js';
 import {preIntermediateLessons,preIntermediateSkills} from './pre-intermediate.js';
 import {requestLessons,requestSkills} from './requests.js';
+import {completionAndChangeLessons,completionAndChangeSkills} from './completion-and-change.js';
 const token=(jp,role,note)=>({jp,role,note});
 const topic=(jp,meaning)=>token(jp,'topic',`${meaning}，是這句話談論的對象。`);
 const wa=()=>token('は','particle','把前面的對象提出來當話題。這個助詞寫作「は」，讀作「わ」。');
@@ -32,6 +33,7 @@ export const grammarSkills={
   ...connectingIdeaSkills,
   ...preIntermediateSkills,
   ...requestSkills,
+  ...completionAndChangeSkills,
   'statement-meaning':'名詞句・說明身分與類別','statement-order':'名詞句・話題與句子順序',
   'negative-meaning':'否定句・理解「不是」','negative-form':'否定句・名詞句尾變化',
   'question-form':'疑問句・「ですか」的問法','question-reply':'疑問句・依事實回答',
@@ -408,8 +410,11 @@ grammarLessons.push(...actionFormLessons);
 grammarLessons.push(...connectingIdeaLessons);
 grammarLessons.push(...preIntermediateLessons);
 grammarLessons.push(...requestLessons);
+grammarLessons.push(...completionAndChangeLessons);
 export const allGrammarQuestions=grammarLessons.flatMap(l=>l.questions.map(q=>({...q,lesson:l.id})));
 export const grammarSources=[
+  ['國際交流基金：てしまう的完成與不如預期','https://www.jpf.go.jp/j/urawa/j_rsorcs/textbook/setsumei_pdf/setsumei14_4.pdf'],
+  ['國際交流基金《いろどり》初級 2：用ようになる說明能力的改變','https://www.irodori.jpf.go.jp/assets/data/elementary02/pdf/Z_L17.pdf'],
   ['東京外國語大學：ので／から表達理由','https://www.coelang.tufs.ac.jp/ja/zt/gmod/contents/explanation/081.html'],
   ['國際交流基金：授受表現','https://www.jpf.go.jp/j/project/japanese/teach/tsushin/grammar/201409.html'],
   ['國際交流基金《いろどり》初中級：向旅館提出請求','https://www.irodori.jpf.go.jp/assets/data/pre-intermediate/pdf/ZZ_L16.pdf'],
