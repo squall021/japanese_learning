@@ -15,9 +15,9 @@ import {acceptedScenarioAnswers,scenarioAnswerMarkup,recordScenarioAnswer,cleanC
 import {scenarioTeaching,scenarioGrammarLinks,scenarioCourseList,scenarioNotice} from './dist/scenarios/ui.js';
 import {particleText,plainJapanese} from './dist/particles/ui.js';
 import {lessons,legacyLessons,allWords,kanaRows,comboRows} from './dist/data.js';
-assert.equal(lessons.length,18);assert.equal(legacyLessons.length,5);
-assert.equal(allWords.length,108);
-assert.equal(new Set(allWords.map(w=>w.id)).size,108);
+assert.equal(lessons.length,19);assert.equal(legacyLessons.length,5);
+assert.equal(allWords.length,114);
+assert.equal(new Set(allWords.map(w=>w.id)).size,114);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='basic').length,46);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='voiced').length,25);
 assert.equal(comboRows.flat().length,33);
@@ -210,6 +210,12 @@ run("startLesson('like');moveStep(2)");events.click({target:{closest:()=>({datas
 const learnedData=run('JSON.stringify(state)');run("nav('guide')");
 assert.equal(run('JSON.stringify(state)'),learnedData);assert.ok(run('home()').includes('想換個學習方向'));
 assert.equal(JSON.stringify(JSON.parse(memory.get('hiyori-v1'))),learnedData);
+run("startLesson('scene-hotel-luggage');moveStep(0);");
+assert.match(node('#app').innerHTML, /id="sc-speaking-title">先試著開口<\/h2>[\s\S]*?<details>\s*<summary>看日文示範<\/summary>/);
+assert.match(node('#app').innerHTML, /aria-label="播放口說示範"/);
+run('moveStep(3);question=3;render();');
+assert.match(node('#app').innerHTML, /同意寄放，最晚下午六點來領。<\/span>/);
+assert.match(node('#app').innerHTML, /<ruby lang="ja">午後<rt>ごご<\/rt><\/ruby>/);
 // A stale tab may keep and export its draft, but cannot overwrite newer saved progress.
 const external=JSON.stringify({...JSON.parse(learnedData),goal:15});
 memory.set('hiyori-v1',external);
@@ -221,4 +227,4 @@ run('pendingImport=validate({...state,goal:10});');
 events.click({target:{closest:()=>({dataset:{action:'confirm-import'}})}});
 assert.equal(memory.get('hiyori-v1'),external);
 assert.equal(run('state.goal'),5);
-console.log('PASS: first-visit guide and live links; 18 scenario flows / 93 first-answer submissions; listening fallback and scoring; writing resume, local backup import, and protection against stale tab writes.');
+console.log('PASS: first-visit guide and live links; 19 scenario flows / 99 first-answer submissions; hotel speaking prompt, listening fallback and scoring; writing resume, local backup import, and protection against stale tab writes.');

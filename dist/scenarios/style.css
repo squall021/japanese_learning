@@ -9,3 +9,6 @@
 .sc-notice h2{font-size:18px;margin:0 0 10px}.sc-notice h2 small{margin-inline-start:6px;color:#52644d;font-weight:400}
 .sc-notice p{margin:3px 0;overflow-wrap:anywhere}.sc-notice p[lang=ja]{font:19px/2.15 var(--serif)}
 .sc-notice-translation{color:#52644d;font-size:13px}.sc-transcript{margin:10px 0 18px}.sc-transcript summary{cursor:pointer}
+.sc-speaking summary{cursor:pointer;color:var(--green-dark);font-weight:600;padding-block:6px}
+.sc-speaking details{margin-top:6px}
+.sc-speaking .jp-line{overflow-wrap:anywhere}

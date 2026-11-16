@@ -7,21 +7,24 @@ import {emptyGrammar,cleanGrammar,dueGrammarSkills,grammarQueue} from './dist/gr
 import {lessons,legacyLessons,allWords} from './dist/data.js';
 import {plainJapanese} from './dist/particles/ui.js';
 
-assert.equal(scenarioLessons.length,13);assert.equal(legacyLessons.length,5);assert.equal(lessons.length,18);assert.equal(allWords.length,108);
+assert.equal(scenarioLessons.length,14);assert.equal(legacyLessons.length,5);assert.equal(lessons.length,19);assert.equal(allWords.length,114);
 assert.deepEqual(legacyLessons.map(l=>l.id),['meet','cafe','shop','place','like']);
-assert.equal(new Set(allWords.map(w=>w.id)).size,108);
+assert.equal(new Set(allWords.map(w=>w.id)).size,114);
 const questions=scenarioLessons.flatMap(l=>l.questions),coverage=new Set(questions.map(q=>q.grammar));
-assert.equal(questions.length,78);assert.equal(new Set(questions.map(q=>q.id)).size,78);
-assert.equal(lessons.reduce((n,l)=>n+l.questions.length,0),93);
+assert.equal(questions.length,84);assert.equal(new Set(questions.map(q=>q.id)).size,84);
+assert.equal(lessons.reduce((n,l)=>n+l.questions.length,0),99);
 const station=scenarioLessons.find(l=>l.id==='scene-station-transfer');
+const hotel=scenarioLessons.find(l=>l.id==='scene-hotel-luggage');
 const transferCoverage=['potential-form','noun-modifiers','tara-conditions','try-te-miru','prepare-te-oku','explain-n-desu'];
-assert.deepEqual(coverage,new Set([...grammarLessons.slice(0,27).map(l=>l.id),...transferCoverage]));
-assert.deepEqual(questions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:34,input:34,listen:10});
+const hotelCoverage=['explain-n-desu','reason-node','giving-and-receiving','giving-and-receiving-help','polite-requests'];
+assert.deepEqual(coverage,new Set([...grammarLessons.slice(0,27).map(l=>l.id),...transferCoverage,...hotelCoverage]));
+assert.deepEqual(questions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:37,input:36,listen:11});
 assert.deepEqual(new Set(station.points.flatMap(p=>p.refs)),new Set(transferCoverage));
 assert.equal(station.notice.lines.length,2);
 const expectedCoverage=[['statement','negative','question'],['verbs','verb-groups','masu-form','nai-form'],['past','ta-form'],['adjectives'],['te-request','te-form'],['te-iru'],['permission','avoid-request','prohibition'],['desire','invitation'],['existence','demonstratives'],['interrogatives','time-frequency'],['state-past','preferences'],['reasons','comparisons','before-after'],transferCoverage];
+expectedCoverage.push(hotelCoverage);
 for(const [i,l] of scenarioLessons.entries()){
-  assert.equal(l.words.length,6);assert.ok(l.dialogue.length>=6);assert.equal(l.points.length,l===station?5:3);assert.equal(l.questions.length,6);
+  assert.equal(l.words.length,6);assert.ok(l.dialogue.length>=6);assert.equal(l.points.length,l===station||l===hotel?5:3);assert.equal(l.questions.length,6);
   assert.deepEqual(new Set(scenarioGrammarIds(l)),new Set(expectedCoverage[i]));
   for(const [name,jp,zh] of l.dialogue){assert.ok(name&&jp&&zh);assert.ok(!/[{}|]/.test(plainJapanese(jp)));}
   for(const [pi,p] of l.points.entries())for(const [ti,part] of p.parts.entries()){
@@ -61,6 +64,9 @@ correct('scene-museum-5',['来ないでください','こないでください']
 correct('scene-station-transfer-2',['運休なんですが','うんきゅうなんですが']);
 correct('scene-station-transfer-5',['確認しておきます','かくにんしておきます']);
 correct('scene-station-transfer-6',['着いたら','ついたら']);
+correct('scene-hotel-luggage-6',['預かってくれた','あずかってくれた']);
+assert.equal(scenarioVerdict(q('scene-hotel-luggage-6'),'預けてくれた'),false);
+assert.equal(scenarioAnswerMarkup(q('scene-hotel-luggage-6'),'預かってくれた'),'{預|あず}かってくれた');
 assert.equal(scenarioVerdict(q('scene-station-transfer-2'),'運休んですが'),false);
 assert.equal(scenarioVerdict(q('scene-station-transfer-6'),'着くら'),false);
 assert.equal(scenarioAnswerMarkup(q('scene-station-transfer-5'),'確認しておきます'),'{確認|かくにん}しておきます');
@@ -79,4 +85,4 @@ assert.deepEqual(cleanCourseProgress(l,{step:4,complete:true,best:99,attempts:2}
 for(const raw of [null,{},[],{step:-1},{step:8}])assert.equal(cleanCourseProgress(l,raw),null);
 const queued=emptyGrammar();recordScenarioAnswer(queued,q('scene-weekend-6'),0,1000);const review=grammarQueue('review',queued,()=>.5,1000);assert.ok(review.length&&review.every(q=>q.use==='invitation-meaning'));assert.ok(review.every(q=>allGrammarQuestions.some(b=>b.id===q.id)));
 assert.ok(scenarioGrammarLinks(['te-request']).includes('data-glesson="te-request"'));
-console.log('PASS: 13 applied scenarios / 78 reviewed questions cover 33 grammar lessons; 41 interactive breakdowns; station transfer form and reading checks; grammar review, graded completion and old progress compatibility.');
+console.log('PASS: 14 applied scenarios / 84 reviewed questions cover 37 grammar lessons; 46 interactive breakdowns; station and hotel input/reading checks; grammar review, graded completion and old progress compatibility.');

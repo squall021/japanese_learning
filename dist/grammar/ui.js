@@ -38,7 +38,10 @@ export function createGrammar(api){
       <section class="g-level" id="pre-intermediate-grammar" aria-labelledby="g-pre-intermediate-title">
         <div class="section-title"><h2 id="g-pre-intermediate-title">初中級</h2><span>${preIntermediate.length} 堂課 · 可自由選課</span></div>
         ${courses(preIntermediate)}
-        <button class="secondary g-level-link" data-start="scene-station-transfer">情境應用 · 車站轉乘出了狀況 ↗</button>
+        <div class="button-row">
+          <button class="secondary g-level-link" data-start="scene-station-transfer">情境應用 · 車站轉乘出了狀況 ↗</button>
+          <button class="secondary g-level-link" data-start="scene-hotel-luggage">情境應用 · 提早到旅館，想先寄放行李 ↗</button>
+        </div>
       </section>
       <div class="g-practice-grid"><section><span class="eyebrow">PUT IT TOGETHER</span><h3>換個情境，再想一次</h3><p>每課隨機抽一題，共 ${grammarLessons.length} 題，把身分、行動與描述放回情境裡。</p>${action(`開始 ${grammarLessons.length} 題綜合練習 →`,'mixed','secondary')}</section><section><span class="eyebrow">REVISIT & REMEMBER</span><h3>${due.length?`${due.length} 個概念，等你再見一次`:'讓學過的句型，慢慢留下來'}</h3><p>${due.length?'每個待複習概念抽兩題，重新留意句子裡的線索。':'答錯的概念會優先加入複習，答對後也會安排間隔複習。'}</p>${action(due.length?'複習易錯與到期概念 →':'目前沒有待複習概念','review','secondary',!due.length)}</section></div>
       ${weak.length?`<section class="g-weak"><h2>再留意這幾個地方</h2><p>同一概念連續答對兩次後移出易錯清單，之後仍會間隔複習。</p><div class="button-row">${weak.map(id=>`<button class="secondary" data-glesson="${allGrammarQuestions.find(q=>q.use===id).lesson}">${grammarSkills[id]} · 回看教學</button>`).join('')}</div></section>`:''}
