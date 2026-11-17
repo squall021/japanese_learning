@@ -33,6 +33,7 @@ const closedForMeeting=[
 export const actionFormLessons=[
   {
     id:'potential-form',foundation:true,symbol:'可能形',title:'可能形｜我會做嗎？這裡能做嗎？',
+    relatedLesson:{id:'guess-kamo-shiremasen',label:'對照第 46 課 · 推測'},
     subtitle:'從買う到買える · 能力與現場條件',
     goal:'按動詞類別變出可能形，說明自己會做什麼，或詢問某地能不能做某事。',
     scene:'到了日本的車站，你想問能不能在這裡買票。在旅客服務中心，你想問能不能借傘。這兩種問法都可以用可能形。',

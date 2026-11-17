@@ -10,15 +10,17 @@ import {connectingIdeaDecks,connectingIdeaLessons,connectingIdeaSkills} from './
 import {preIntermediateDecks,preIntermediateLessons,preIntermediateSkills} from './dist/grammar/pre-intermediate.js';
 import {requestDecks,requestLessons,requestSkills} from './dist/grammar/requests.js';
 import {completionAndChangeDecks,completionAndChangeLessons,completionAndChangeSkills} from './dist/grammar/completion-and-change.js';
+import {reportAndGuessDecks,reportAndGuessLessons,reportAndGuessSkills} from './dist/grammar/report-and-guess.js';
 
-assert.equal(grammarLessons.length,44);assert.equal(allGrammarQuestions.length,264);
-assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,264);
-assert.equal(Object.keys(grammarSkills).length,88);
-assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:135,build:58,transform:63,conjugate:8});
+assert.equal(grammarLessons.length,46);assert.equal(allGrammarQuestions.length,276);
+assert.equal(new Set(allGrammarQuestions.map(q=>q.id)).size,276);
+assert.equal(Object.keys(grammarSkills).length,92);
+assert.deepEqual(allGrammarQuestions.reduce((n,q)=>(n[q.type]=(n[q.type]||0)+1,n),{}),{choice:143,build:60,transform:65,conjugate:8});
 assert.deepEqual(grammarLessons.slice(27,35).map(l=>l.id),['potential-form','verb-pairs-results','plain-forms','noun-modifiers','past-experience','giving-advice','obligation-and-exemption','tara-conditions']);
 assert.deepEqual(grammarLessons.slice(35,38).map(l=>l.id),['try-te-miru','prepare-te-oku','explain-n-desu']);
 assert.deepEqual(grammarLessons.slice(38,42).map(l=>l.id),['reason-node','giving-and-receiving','giving-and-receiving-help','polite-requests']);
-assert.deepEqual(grammarLessons.slice(42).map(l=>l.id),['finish-te-shimau','change-you-ni-naru']);
+assert.deepEqual(grammarLessons.slice(42,44).map(l=>l.id),['finish-te-shimau','change-you-ni-naru']);
+assert.deepEqual(grammarLessons.slice(44).map(l=>l.id),['hearsay-sou-desu','guess-kamo-shiremasen']);
 for(const l of grammarLessons){
   assert.equal(l.examples.length,3);assert.equal(l.questions.length,6);assert.ok(l.notes.length>=3);
   for(const e of l.examples){
@@ -124,15 +126,16 @@ for(const l of grammarLessons){
   assert.deepEqual(progress.lessons[l.id],{complete:true,best:6,attempts:1});click({gaction:'next'});assert.equal(progress.lessons[l.id].attempts,1);
   assert.ok(html.includes('本次答對題數'));
 }
-assert.equal(saved,264);click({gaction:'retry'});assert.ok(html.includes('從以前不會，到現在做得到'));
+assert.equal(saved,276);click({gaction:'retry'});assert.ok(html.includes('事情還不確定，怎麼告訴別人？'));
 assert.deepEqual(cleanGrammar(JSON.parse(JSON.stringify(progress))),progress);
-for(const skill of [...Object.keys(actionFormSkills),...Object.keys(connectingIdeaSkills),...Object.keys(preIntermediateSkills),...Object.keys(requestSkills),...Object.keys(completionAndChangeSkills)])assert.equal(progress.skills[skill].correct,3);
-const interactiveDecks={...actionFormDecks,...connectingIdeaDecks,...preIntermediateDecks,...requestDecks,...completionAndChangeDecks};
+for(const skill of [...Object.keys(actionFormSkills),...Object.keys(connectingIdeaSkills),...Object.keys(preIntermediateSkills),...Object.keys(requestSkills),...Object.keys(completionAndChangeSkills),...Object.keys(reportAndGuessSkills)])assert.equal(progress.skills[skill].correct,3);
+const interactiveDecks={...actionFormDecks,...connectingIdeaDecks,...preIntermediateDecks,...requestDecks,...completionAndChangeDecks,...reportAndGuessDecks};
 assert.equal(Object.values(connectingIdeaDecks).flatMap(deck=>deck.cards).length,19);
 assert.equal(Object.values(preIntermediateDecks).flatMap(deck=>deck.cards).length,9);
 assert.equal(Object.values(requestDecks).flatMap(deck=>deck.cards).length,12);
 assert.equal(Object.values(completionAndChangeDecks).flatMap(deck=>deck.cards).length,6);
-for(const lesson of [...actionFormLessons,...connectingIdeaLessons,...preIntermediateLessons,...requestLessons,...completionAndChangeLessons]){
+assert.equal(Object.values(reportAndGuessDecks).flatMap(deck=>deck.cards).length,6);
+for(const lesson of [...actionFormLessons,...connectingIdeaLessons,...preIntermediateLessons,...requestLessons,...completionAndChangeLessons,...reportAndGuessLessons]){
   click({glesson:lesson.id});
   const {cards}=interactiveDecks[lesson.id];
   for(const [index,card] of cards.entries()){
@@ -147,7 +150,13 @@ for(const lesson of [...actionFormLessons,...connectingIdeaLessons,...preInterme
   }
   click({gfoundation:'9'});assert.ok(html.includes(`data-gfoundation="${cards.length-1}" aria-pressed="true"`));
 }
-assert.equal(saved,264);
+click({glesson:'guess-kamo-shiremasen'});
+assert.ok(html.includes('data-glesson="potential-form">回看第 28 課'));
+click({glesson:'potential-form'});
+assert.ok(html.includes('data-glesson="guess-kamo-shiremasen">對照第 46 課'));
+click({glesson:'guess-kamo-shiremasen'});
+assert.ok(html.includes('同一個會場，分辨能不能與會不會'));
+assert.equal(saved,276);
 click({glesson:'tara-conditions'});click({gaction:'practice'});
 choose('降りましたら');assert.ok(html.includes('降りましたら是較禮貌的接法'));
 assert.equal(progress.skills['tara-form'].needsReview,true);
@@ -175,4 +184,4 @@ for(const id of ['ve-1','ve-2','ve-3','ve-4','ve-5']){
   }
   assert.ok(html.includes('✓ 判斷正確'));click({gaction:'next'});
 }
-console.log('PASS: 44 grammar lessons / 132 annotated examples / 264 questions; interactive diagrams for lessons 28–44; alternatives and word order; furigana; balanced mixed practice; review scheduling and backup compatibility.');
+console.log('PASS: 46 grammar lessons / 138 annotated examples / 276 questions; interactive diagrams for lessons 28–46; reciprocal potential/uncertainty links; balanced mixed practice; review and backup compatibility.');

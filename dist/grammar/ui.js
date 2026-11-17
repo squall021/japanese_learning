@@ -52,6 +52,7 @@ export function createGrammar(api){
     return `${action('← 所有文法課程','overview','back')}${heading(`GRAMMAR ${String(grammarLessons.indexOf(l)+1).padStart(2,'0')} · ${l.symbol}`,l.title,l.subtitle)}
       <section class="g-scene"><span class="eyebrow">IMAGINE THIS</span><h2>把自己放進這個情境</h2><p>${l.scene}</p></section>
       ${l.guide?renderGuide(l):''}${l.foundation?foundationGuide(l.id,foundationCard):''}
+      ${l.relatedLesson?`<p><button class="secondary" data-glesson="${esc(l.relatedLesson.id)}">${esc(l.relatedLesson.label)}</button></p>`:''}
       <div class="g-study-grid"><aside class="g-rule"><span class="eyebrow">TAKE THIS PATTERN WITH YOU</span><h2>先記住這個關係</h2><p>${l.rule}</p><div class="g-formula">${l.pattern}</div><ul>${l.notes.map(n=>`<li>${text(n)}</li>`).join('')}</ul></aside>
       <section class="g-breakdown"><div class="section-title"><h2>一句話，一塊一塊看懂</h2></div><p class="muted">選個情境，再點詞塊，看看它在本句的作用。</p><div class="g-example-tabs" role="group" aria-label="切換文法例句">${l.examples.map((ex,i)=>`<button data-gexample="${i}" aria-pressed="${i===exampleIndex}">${String(i+1).padStart(2,'0')} ${ex.scene}</button>`).join('')}</div>
       <div class="g-token-sentence" lang="ja">${e.parts.map((t,i)=>`<button class="g-token g-role-${t.role}" data-gtoken="${i}" aria-pressed="${i===tokenIndex}" aria-label="${esc(plainJapanese(t.jp))}：${roles[t.role]}">${text(t.jp,'',false)}<small>${roles[t.role]}</small></button>`).join('')}<span>。</span></div><p class="g-translation">${e.zh} ${speakButton(exampleSentence(e))}</p>
