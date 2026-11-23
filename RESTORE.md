@@ -8,6 +8,8 @@
 
 | 標籤 | 用途 |
 | --- | --- |
+| `checkpoint-20261124-0638-before-curriculum-lessons` | 課程擴充前的 v1.22.0，提交 `3506e02` |
+| `v1.23.0` | 文法第 47～49 課、情境第 20～24 課和學習階段導覽 |
 | `checkpoint-before-github-2026-10-24` | 搬移前的第一版，commit `f314ca6bdec80877663357e3875d5256808e82c1` |
 | `v1.0.0-github` | GitHub 首次上線版，包含自動檢查、發布工作流程與回復說明 |
 | `checkpoint-20261024-before-handwriting` | 加入手寫練習前的穩定版本，commit `b5984a764988e2e4d574bd726242f0912c91f31e` |

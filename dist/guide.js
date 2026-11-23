@@ -3,6 +3,7 @@ const destination=(kind,id,label)=>({kind,id,label});
 const nav=(id,label)=>destination('nav',id,label);
 const grammar=(id,label)=>destination('glesson',id,label);
 const particle=(id,label)=>destination('plesson',id,label);
+const course=(id,label)=>destination('start',id,label);
 
 export const guidePaths=[
  {id:'beginner',symbol:'あ',title:'日文初學者',summary:'從聲音與假名開始，一次學一點。',intro:'還不會讀日文也沒關係。先認識假名的聲音，再試著看懂一句簡單的日文。',
@@ -19,7 +20,7 @@ export const guidePaths=[
   ],rhythm:[['4分鐘','理解一個句型'],['4分鐘','做幾題助詞或文法'],['2分鐘','聽一段生活對話']],next:'不必一次做完所有分類。先選一個能用上的句型，再到情境課程練習。'},
  {id:'grammar',symbol:'組',title:'想加強文法',summary:'找出不熟的接法，理解後再練習。',intro:'已經學過一些日文，可以依弱點選課，用圖解、拆句與練習把容易混淆的地方整理清楚。',
   steps:[
-   {title:'依目前的問題選一堂課',body:'第1～6課建立基本句子，第7～18課練動詞分類與活用，第19～29課加入生活句型、可能形與結果狀態。第30～35課從普通形進到名詞修飾、經驗、建議、義務與條件。第36～38課進入初中級，練習試做、事先準備和交代情況。',target:nav('grammar','查看文法課程地圖'),extra:grammar('try-te-miru','從第36課進入初中級')},
+   {title:'依目前的問題選一堂課',body:'第1～6課建立基本句子，第7～18課練動詞活用，第19～35課學習生活句型與句子連接。第36～46課包括請求、授受、傳聞與推測。第47課補充動作順序，第48～49課比較條件句。',target:nav('grammar','查看文法課程地圖'),extra:grammar('try-te-miru','從第36課進入初中級')},
    {title:'先看懂變化，再親手組句',body:'在單課裡點例句查看詞語用途，有圖解的課可切換動詞或情境。接著做選答、組句或變換練習；答錯時閱讀解析，再比較完整答案。',target:grammar('te-form','試看て形圖解'),extra:nav('particles','容易混淆助詞？到這裡比較')},
    {title:'用綜合練習與易錯複習確認',body:'文法專區的「綜合練習」會跨課抽題；「易錯與到期概念」會依作答安排複習。助詞的變化練習與用法複習在助詞專區，想練實際運用則到情境課程。',target:nav('grammar','前往文法練習與複習'),extra:nav('courses','到情境課程練運用')}
   ],rhythm:[['3分鐘','回看一個易錯概念'],['5分鐘','完成一組單課練習'],['2分鐘','聽懂例句再說一次']],next:'課程完成表示已完成該課練習。可以重做並閱讀回饋，讓容易混淆的用法逐漸清楚。'},
@@ -75,6 +76,12 @@ export function learningGuide(selected='beginner'){
    <ol class="lg-steps">${path.steps.map((s,i)=>`<li><span class="lg-step-number" aria-hidden="true">${String(i+1).padStart(2,'0')}</span><div><h3>${s.title}</h3><p>${s.body}</p><div class="lg-actions">${action(s.target,i===0?'primary':'secondary')}${s.extra?action(s.extra,'text-link'):''}</div></div></li>`).join('')}</ol>
    <div class="lg-rhythm"><h3>今天先留10分鐘就好</h3><p>這是一種時間分配示例，可以依自己的步調調整。</p><div>${path.rhythm.map(([time,task])=>`<span><strong>${time}</strong>${task}</span>`).join('')}</div></div><p class="lg-next">${path.next}</p>
   </section>
+  <section class="lg-feature-section" aria-labelledby="lg-stages-title"><div class="section-title"><h2 id="lg-stages-title">依學習階段前進</h2></div><div class="lg-feature-grid">
+   <article><h3>入門</h3><p>認識假名與基本句子，試著介紹自己。</p>${action(nav('kana','認識五十音'),'text-link')}${action(grammar('statement','學習自我介紹'),'text-link')}</article>
+   <article><h3>初級</h3><p>練習時間與期限，讀懂公告、確認預約並說清楚數量。</p>${action(grammar('time-frequency','學習時間表達'),'text-link')}${action(particle('made-madeni','比較まで與までに'),'text-link')}${action(course('scene-opening-hours','讀開館公告'),'text-link')}${action(course('scene-reservation-date','確認預約日期'),'text-link')}${action(course('scene-people-and-tickets','說清楚人數與票數'),'text-link')}${action(grammar('te-kara-sequence','練習取票再入場'),'text-link')}${action(nav('phrasebook','到日常會話搜尋「關門」'),'text-link')}</article>
+   <article><h3>初中級</h3><p>練習依條件給建議、轉達活動改期，以及說明症狀。</p>${action(grammar('explain-n-desu','從初中級開始'),'text-link')}${action(grammar('hearsay-sou-desu','練習轉述消息'),'text-link')}${action(grammar('to-ba-conditions','開始比較條件句'),'text-link')}${action(course('scene-rescheduled-event','練習轉達改期消息'),'text-link')}${action(course('scene-describe-symptoms','練習說明症狀'),'text-link')}</article>
+  </div></section>
+  <section class="lg-questions" aria-labelledby="lg-jlpt-title"><h2 id="lg-jlpt-title">日檢複習入口</h2><p>以下依常見教材分類提供選課參考；JLPT 沒有公布各級單字與文法的完整清單。課程完成紀錄不代表通過測驗。</p><details><summary>N5 參考・基礎句與時間</summary><p>複習自我介紹、基本句型與時刻，再試著看懂開館時間。</p>${action(grammar('statement','名詞句'),'text-link')}${action(grammar('time-frequency','時間與頻率'),'text-link')}${action(course('scene-opening-hours','開館時間應用'),'text-link')}</details><details><summary>N4 參考・條件與授受</summary><p>複習條件、授受和委婉請求。</p>${action(grammar('tara-conditions','たら條件'),'text-link')}${action(grammar('giving-and-receiving','授受表達'),'text-link')}${action(grammar('polite-requests','委婉請求'),'text-link')}</details><p>其他級別與完整模擬題可參考 <a href="https://www.jlpt.jp/tw/" target="_blank" rel="noopener noreferrer">JLPT 官方網站</a>。</p></section>
   <section class="lg-feature-section" aria-labelledby="lg-features-title"><div class="section-title"><h2 id="lg-features-title">每個專區，可以幫你什麼？</h2></div><div class="lg-feature-grid">${guideFeatures.map(f=>`<article><h3>${f.title}</h3><p>${f.body}</p>${action(f.target,'text-link')}</article>`).join('')}</div></section>
   <section class="lg-questions" aria-labelledby="lg-questions-title"><div class="section-title"><h2 id="lg-questions-title">第一次使用，可能會想知道</h2></div>${guideQuestions.map(([q,a])=>`<details><summary>${q}</summary><p>${a}</p></details>`).join('')}</section>
   <section class="lg-backup"><div><h2>把學過的，安心留下來。</h2><p>語音選擇、每日目標，以及進度匯出／匯入，都在「我的學習」。</p></div>${action(nav('mine','前往我的學習'))}</section>

@@ -1,15 +1,6 @@
-import {grammarLessons,allGrammarQuestions} from '../grammar/data.js';
-const t=(jp,label,note)=>({jp,label,note});
-const pt=(title,refs,parts,zh,pattern,explain)=>({title,refs,parts,zh,pattern,explain});
-const choice=(id,use,q,options,answer,why,wrong,extra={})=>({id,type:'choice',use,q,options,answer,answers:[answer],why,wrong,...extra});
-const input=(id,use,q,text,answers,why)=>({id,type:'input',use,q,text,answer:answers[0],answers,why});
-const listen=(id,use,q,audio,options,answer,why,wrong)=>choice(id,use,q,options,answer,why,wrong,{type:'listen',audio});
-const useLesson=use=>allGrammarQuestions.find(q=>q.use===use)?.lesson;
-const scenario=(slug,meta,words,dialogue,points,questions)=>{
-  const id='scene-'+slug;
-  return {id,kind:'application',...meta,words:words.map(([jp,reading,zh,example],i)=>({id:id+'-w'+(i+1),jp,reading,zh,example})),dialogue,points,
-    questions:questions.map(q=>({...q,id:id+'-'+q.id,grammar:useLesson(q.use)}))};
-};
+import {grammarLessons} from '../grammar/data.js';
+import {scenario,t,pt,choice,input,listen} from './lesson-builder.js';
+import {practicalLessons} from './practical-lessons.js';
 
 export const scenarioLessons=[
   scenario('introduce',{title:'新同事，你好',short:'介紹與澄清身分',category:'與人相遇',icon:'user',color:'peach',time:12,ja:'学生じゃありません',desc:'說明自己的身分，聽錯時也能禮貌澄清。',goal:'介紹身分、提問並修正對方的誤解'},
@@ -323,6 +314,46 @@ scenarioLessons.push(scenario('hotel-luggage', {
       '預かる → 預かって，再接普通過去形「くれた」，回報工作人員已經幫了忙。')
   ]
 ));
+
+scenarioLessons.push(scenario('opening-hours', {
+  title:'看懂開館時間，再確認入場', short:'閱讀公告、確認時刻、詢問最後入場',
+  category:'生活應用', icon:'book', color:'sage', time:12, explicitReadings:true,
+  ja:'最終入場は何時ですか', desc:'先讀美術館公告，再向工作人員確認最後入場時間。',
+  goal:'找出開館與最後入場時間，並詢問幾點可以入場',
+  speaking:{prompt:'你想知道最後入場時間。試著問工作人員。',jp:'{最終入場|さいしゅうにゅうじょう}は{何時|なんじ}ですか。',zh:'最後入場是幾點？'}
+},
+  [
+    ['開館時間','かいかんじかん','名詞・開館時間','{開館時間|かいかんじかん}は{午前|ごぜん}{九時|くじ}からです。'],
+    ['最終入場','さいしゅうにゅうじょう','名詞・最後入場','{最終入場|さいしゅうにゅうじょう}は{午後|ごご}{四時|よじ}です。'],
+    ['休館日','きゅうかんび','名詞・休館日','{休館日|きゅうかんび}は{水曜日|すいようび}です。'],
+    ['午前','ごぜん','名詞・上午','{午前|ごぜん}{九時|くじ}に{開|あ}きます。'],
+    ['午後','ごご','名詞・下午','{午後|ごご}{五時|ごじ}までです。'],
+    ['水曜日','すいようび','名詞・星期三','{水曜日|すいようび}はお{休|やす}みです。']
+  ],
+  [
+    ['公告','{開館時間|かいかんじかん}：{午前|ごぜん}{九時|くじ}から{午後|ごご}{五時|ごじ}まで。','開館時間：上午九點到下午五點。'],
+    ['公告','{最終入場|さいしゅうにゅうじょう}：{午後|ごご}{四時|よじ}。','最後入場：下午四點。'],
+    ['公告','{休館日|きゅうかんび}：{水曜日|すいようび}。','休館日：星期三。'],
+    ['你','すみません。{最終入場|さいしゅうにゅうじょう}は{何時|なんじ}ですか。','不好意思，最後入場是幾點？'],
+    ['工作人員','{午後|ごご}{四時|よじ}です。','下午四點。'],
+    ['你','わかりました。ありがとうございます。','了解，謝謝。']
+  ],
+  [
+    pt('從幾點到幾點',['time-frequency'],[t('{午前|ごぜん}{九時|くじ}から','起點','從上午九點開始。'),t('{午後|ごご}{五時|ごじ}まで','終點','持續到下午五點。')],'上午九點到下午五點。','時刻から時刻まで','から標示起點，まで標示結束的時間。'),
+    pt('問幾點',['interrogatives','time-frequency'],[t('{最終入場|さいしゅうにゅうじょう}は','話題','要問的是最後入場時間。'),t('{何時|なんじ}','疑問詞','何時在這裡讀なんじ，詢問時刻。'),t('ですか','句尾','禮貌地提問。')],'最後入場是幾點？','事物は何時ですか','四時在時刻讀よじ，九時讀くじ。'),
+    pt('可以入場嗎',['potential-form'],[t('{今|いま}','時間','現在。'),t('{入|はい}れます','可能形','入る的可能形入れます表示能進入。'),t('か','疑問','詢問是否能進入。')],'現在可以入場嗎？','入る → 入れますか','是否可以進入需要依公告和工作人員的答覆確認。')
+  ],
+  [
+    choice('1','time-point','公告說「午前九時から午後五時まで」。開館時間是？',['上午九點到下午五點。','下午九點到下午五點。','上午五點到上午九點。'],0,'から是起點，まで是終點。',{1:'午前是上午。',2:'九時是起點，五時是終點。'}),
+    choice('2','time-point','公告寫「最終入場：午後四時」。最後入場是？',['下午五點。','下午四點。','上午四點。'],1,'午後四時是下午四點。',{0:'五點是閉館時間。',2:'午後是下午。'}),
+    choice('3','ask-info','你想問最後入場是幾點，哪句適合？',['最終入場は何時ですか。','最終入場はどこですか。','最終入場は誰ですか。'],0,'何時問時刻。',{1:'どこ問地點。',2:'誰問人。'}),
+    input('4','time-point','填入起點的助詞，完成「從九點到五點」。','{九時|くじ}＿＿{五時|ごじ}まで。',['から'],'から表示時間的起點。'),
+    choice('5','potential-form','想問「現在可以入場嗎？」選哪一句？',['{今|いま}、{入|はい}れますか。','{今|いま}、{入|はい}りません。','{昨日|きのう}、{入|はい}りました。'],0,'入れますか用可能形詢問能否入場。',{1:'這句說現在不進入。',2:'這句說昨天進入了。'}),
+    choice('6','time-point','公告說「休館日：水曜日」。星期三的情況是？',['休館。','開館到下午五點。','下午四點才開館。'],0,'休館日是休息、不開館的日子。',{1:'公告另有休館日，星期三休館。',2:'四點是最後入場時間。'})
+  ]
+));
+
+scenarioLessons.push(...practicalLessons);
 
 export const scenarioGrammarIds=l=>{const ids=new Set(l.questions.map(q=>q.grammar));return grammarLessons.filter(g=>ids.has(g.id)).map(g=>g.id);};
 export const scenarioGrammarLabel=id=>{const i=grammarLessons.findIndex(l=>l.id===id);return i<0?'':'第 '+(i+1)+' 課 · '+grammarLessons[i].symbol;};

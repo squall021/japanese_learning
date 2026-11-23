@@ -5,7 +5,7 @@ export const scenarioGrammarLinks=ids=>'<div class="sc-grammar-links" aria-label
 export function scenarioNotice(lesson,translate){
   if(!lesson.notice)return '';
   return `<section class="sc-notice" aria-labelledby="sc-notice-title">
-    <h2 id="sc-notice-title">車站公告 <small>模擬情境</small></h2>
+    <h2 id="sc-notice-title">${esc(lesson.notice.title ?? '車站公告')} <small>模擬情境</small></h2>
     ${lesson.notice.lines.map(([jp,zh])=>`<p lang="ja">${text(jp)}</p>${translate?`<p class="sc-notice-translation">${esc(zh)}</p>`:''}`).join('')}
   </section>`;
 }

@@ -15,9 +15,9 @@ import {acceptedScenarioAnswers,scenarioAnswerMarkup,recordScenarioAnswer,cleanC
 import {scenarioTeaching,scenarioGrammarLinks,scenarioCourseList,scenarioNotice} from './dist/scenarios/ui.js';
 import {particleText,plainJapanese} from './dist/particles/ui.js';
 import {lessons,legacyLessons,allWords,kanaRows,comboRows} from './dist/data.js';
-assert.equal(lessons.length,19);assert.equal(legacyLessons.length,5);
-assert.equal(allWords.length,114);
-assert.equal(new Set(allWords.map(w=>w.id)).size,114);
+assert.equal(lessons.length,24);assert.equal(legacyLessons.length,5);
+assert.equal(allWords.length,144);
+assert.equal(new Set(allWords.map(w=>w.id)).size,144);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='basic').length,46);
 assert.equal(kanaRows.flat().filter(k=>k?.group==='voiced').length,25);
 assert.equal(comboRows.flat().length,33);
@@ -44,6 +44,9 @@ for(const t of targets){
  assert.ok(t.kind==='nav'?allowedPages.has(t.id):t.kind==='glesson'?grammarLessons.some(l=>l.id===t.id):t.kind==='plesson'&&particleLessons.some(l=>l.id===t.id),t.label);
 }
 const initialData=run('JSON.stringify(state)');
+const guideHtml=learningGuide();
+for(const id of ['time-frequency','made-madeni','scene-opening-hours','hearsay-sou-desu','tara-conditions','giving-and-receiving','polite-requests'])assert.ok(guideHtml.includes(`="${id}"`),id);
+for(const lesson of lessons.slice(20))assert.ok(guideHtml.includes(`data-start="${lesson.id}"`),lesson.id);
 for(const p of guidePaths){
  events.click({target:{closest:()=>({dataset:{guidePath:p.id}})}});
  assert.equal(run('page'),'guide');assert.ok(node('#app').innerHTML.includes(`${p.title}，可以這樣開始`));
@@ -227,4 +230,4 @@ run('pendingImport=validate({...state,goal:10});');
 events.click({target:{closest:()=>({dataset:{action:'confirm-import'}})}});
 assert.equal(memory.get('hiyori-v1'),external);
 assert.equal(run('state.goal'),5);
-console.log('PASS: first-visit guide and live links; 19 scenario flows / 99 first-answer submissions; hotel speaking prompt, listening fallback and scoring; writing resume, local backup import, and protection against stale tab writes.');
+console.log('PASS: first-visit guide and live links; 24 scenario flows / 129 first-answer submissions; hotel speaking prompt, listening fallback and scoring; writing resume, local backup import, and protection against stale tab writes.');

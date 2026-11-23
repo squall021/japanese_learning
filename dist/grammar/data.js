@@ -7,6 +7,7 @@ import {preIntermediateLessons,preIntermediateSkills} from './pre-intermediate.j
 import {requestLessons,requestSkills} from './requests.js';
 import {completionAndChangeLessons,completionAndChangeSkills} from './completion-and-change.js';
 import {reportAndGuessLessons,reportAndGuessSkills} from './report-and-guess.js';
+import {sequenceAndConditionLessons,sequenceAndConditionSkills} from './sequence-and-conditions.js';
 const token=(jp,role,note)=>({jp,role,note});
 const topic=(jp,meaning)=>token(jp,'topic',`${meaning}，是這句話談論的對象。`);
 const wa=()=>token('は','particle','把前面的對象提出來當話題。這個助詞寫作「は」，讀作「わ」。');
@@ -36,6 +37,7 @@ export const grammarSkills={
   ...requestSkills,
   ...completionAndChangeSkills,
   ...reportAndGuessSkills,
+  ...sequenceAndConditionSkills,
   'statement-meaning':'名詞句・說明身分與類別','statement-order':'名詞句・話題與句子順序',
   'negative-meaning':'否定句・理解「不是」','negative-form':'否定句・名詞句尾變化',
   'question-form':'疑問句・「ですか」的問法','question-reply':'疑問句・依事實回答',
@@ -414,6 +416,7 @@ grammarLessons.push(...preIntermediateLessons);
 grammarLessons.push(...requestLessons);
 grammarLessons.push(...completionAndChangeLessons);
 grammarLessons.push(...reportAndGuessLessons);
+grammarLessons.push(...sequenceAndConditionLessons);
 export const allGrammarQuestions=grammarLessons.flatMap(l=>l.questions.map(q=>({...q,lesson:l.id})));
 export const grammarSources=[
   ['國際交流基金：傳聞與樣態的そうだ','https://www.jpf.go.jp/j/project/japanese/teach/tsushin/grammar/201012.html'],
@@ -442,5 +445,7 @@ export const grammarSources=[
   ['國際交流基金：ない形與字尾對照','https://www.kyozai.jpf.go.jp/kyozai/material/BTS00065/ja/render.do'],
   ['東京外國語大學：て形音變','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/043.html'],
   ['國際交流基金：てください','https://www.kyozai.jpf.go.jp/kyozai/material/BTS00149/ja/render.do'],
+  ['東京外國語大學：て形與てから','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/051.html'],
+  ['東京外國語大學：と／ば／たら／なら','https://www.coelang.tufs.ac.jp/mt/ja/gmod/contents/explanation/083.html'],
   ['國際交流基金：ています（文法解說文24）','https://www.jpf.go.jp/j/urawa/j_rsorcs/textbook/dl/setsumei/setsumei_all.pdf']
 ];
