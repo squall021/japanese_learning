@@ -13,6 +13,13 @@ export function createPhrasebook(api){
  const book=()=>api.getState();
  const selected=()=>scenes.find(s=>s.id===current);
  const refresh=(focus,top=false)=>{api.render();if(focus)document.querySelector(focus)?.focus({preventScroll:true});if(top)window.scrollTo(0,0);};
+ const isNarrow=()=>window.matchMedia?.('(max-width: 650px)').matches;
+ function focusSection(selector,heading=selector){
+  const target=document.querySelector(selector);
+  if(!target)return;
+  target.scrollIntoView({block:'start',behavior:'instant'});
+  document.querySelector(heading)?.focus({preventScroll:true});
+ }
  const saveButton=s=>`<button class="f-save ${book().saved.includes(s.id)?'is-saved':''}" data-fsave="${s.id}" aria-pressed="${book().saved.includes(s.id)}" aria-label="${book().saved.includes(s.id)?'取消收藏':'收藏'}：${esc(s.title)}">${book().saved.includes(s.id)?'★ 已收藏':'☆ 收藏'}</button>`;
  const matchingScenes=()=>findScenes(query,category,scope,book()).filter(s=>!replyOnly||s.replyPractice);
  let renderedResults='';
@@ -20,12 +27,24 @@ export function createPhrasebook(api){
   return `${results.length?`<div class="f-scene-grid">${results.map(s=>{const cat=categories.find(c=>c.id===s.category),resolved=resolveScene(s,book().selections?.[s.id]||{}),first=resolved.lines.find(l=>role==='all'?l.role==='you':l.role===role)||resolved.lines[0];return `<article class="f-scene-card"><div class="f-card-meta"><span>${cat.name}${s.replyPractice?'<small class="f-reply-badge">可練接話</small>':''}</span>${saveButton(s)}</div><button class="f-open" data-fopen="${s.id}"><h3>${esc(s.title)}</h3><p>${esc(s.description)}</p><div class="f-preview"><small>${roleLabel(first.role)}</small><span lang="ja">${text(first.jp,'',false)}</span>${showChinese?`<span class="f-preview-zh">${esc(first.zh)}</span>`:''}</div><span class="f-card-link">看完整對話 <span aria-hidden="true">↗</span></span></button></article>`;}).join('')}</div>`:`<div class="f-empty"><h3>${scope==='saved'&&!book().saved.length?'還沒有收藏的會話':scope==='recent'&&!book().recent.length?'打開情境後，就能在這裡找回':'沒有找到符合的情境'}</h3><p>可以試試「袋子」「轉乘」「兒童票」等需求，或查看全部分類。</p><button class="secondary" data-faction="clear">查看全部情境</button></div>`}`;
  }
  function roleTabs(){return `<div class="f-role-tabs" role="group" aria-label="選擇會話角色">${[['all','雙方對話'],['you','我想說'],['staff','我可能聽到']].map(([id,label])=>`<button data-frole="${id}" aria-pressed="${role===id}">${label}</button>`).join('')}</div>`;}
- function overview(){const results=matchingScenes();renderedResults=results.map(s=>s.id).join(',');return `<div class="f-heading"><span class="eyebrow">JAPANESE, WHEN YOU NEED IT</span><h1 id="f-title" tabindex="-1">在日本的每一天，<br>有一句話陪你。</h1><p>從找商品、問轉乘，到寄件、連網與找遺失物。先選一個需求，聽聽雙方怎麼說。</p></div>
+ function overview(){
+  const results=matchingScenes();
+  const categoryName=categories.find(c=>c.id===category)?.name;
+  const scopeTitle={saved:'我的會話收藏',recent:'最近看過'}[scope];
+  const resultTitle=[scopeTitle,categoryName].filter(Boolean).join(' · ')||'找一句，解決眼前的小事';
+  renderedResults=results.map(s=>s.id).join(',');
+  return `<div class="f-heading"><span class="eyebrow">JAPANESE, WHEN YOU NEED IT</span><h1 id="f-title" tabindex="-1">在日本的每一天，<br>有一句話陪你。</h1><p>從找商品、問轉乘，到寄件、連網與找遺失物。先選一個需求，聽聽雙方怎麼說。</p></div>
   <div class="fr-intro-actions"><button class="secondary" data-faction="pocket">我的旅行小抄 · ${book().saved.length} 個收藏 ↗</button><button class="secondary" data-faction="routes" aria-expanded="${routesOpen}">${routesOpen?'收起連續演練路線':'找一條連續演練路線 ↓'}</button></div><section class="f-search-panel"><label for="f-search">現在想做什麼？</label><div class="f-search-row"><span aria-hidden="true">⌕</span><input id="f-search" type="search" data-fsearch value="${esc(query)}" placeholder="搜尋袋子、月台、轉車、寄件、Wi-Fi…" autocomplete="off"><button class="f-clear" data-faction="clear-query" aria-label="清除搜尋">×</button></div><div class="f-scopes" role="group" aria-label="會話清單">${[['all','全部會話'],['saved',`我的收藏 ${book().saved.length}`],['recent','最近看過']].map(([id,label])=>`<button data-fscope="${id}" aria-pressed="${scope===id}">${label}</button>`).join('')}</div></section>
-  <section class="f-categories" aria-label="日常會話分類">${categories.map((c,i)=>`<button data-fcategory="${c.id}" aria-pressed="${category===c.id}" class="f-category f-color-${i%3}">${icon(c.icon)}<span><strong>${c.name}</strong><small>${c.hint}</small></span><em>${scenes.filter(s=>s.category===c.id).length}</em></button>`).join('')}</section>
+  <section id="f-categories" class="f-categories" aria-label="日常會話分類" tabindex="-1">${categories.map((c,i)=>`<button data-fcategory="${c.id}" aria-controls="f-results" aria-pressed="${category===c.id}" class="f-category f-color-${i%3}">${icon(c.icon)}<span><strong>${c.name}</strong><small>${c.hint}</small></span><em>${scenes.filter(s=>s.category===c.id).length}</em></button>`).join('')}</section>
   <p class="f-edition-note">${categories.length} 個分類 · ${scenes.length} 個生活情境 · ${scenes.filter(s=>s.replyPractice).length} 組接話練習。從「可練接話」的情境，試試對方問了以後怎麼回答。</p><div class="f-filter-row"><button class="${category==='all'?'f-active':'secondary'}" data-fcategory="all">全部分類</button><button class="secondary" data-faction="reply-only" aria-pressed="${replyOnly}">只看接話練習</button>${roleTabs()}<button class="secondary" data-faction="translation" aria-pressed="${showChinese}">${showChinese?'隱藏中文':'顯示中文'}</button></div>
   <details class="f-help"><summary>聽不懂時，先用這幾句</summary><div class="f-help-grid">${helpPhrases.map((h,i)=>`<article><strong>${h.title}</strong><p lang="ja">${text(h.jp)}</p><p>${esc(h.zh)}</p><div class="f-line-actions"><button data-fhelp-sound="${i}" aria-label="播放：${h.title}">♪ 聽這句</button><button data-fhelp-card="${i}">放大出示 ↗</button></div></article>`).join('')}</div></details>
-  ${routesOpen?routePicker():''}<section id="f-results"><div class="f-result-heading"><h2>${scope==='saved'?'我的會話收藏':scope==='recent'?'最近看過':'找一句，解決眼前的小事'}</h2><span id="f-result-count" role="status">${results.length} 個情境</span></div><div id="f-result-list">${cards(results)}</div></section><details class="f-sources"><summary>關於這本日常會話</summary><p>${categories.length}類、${scenes.length}個常見小情境，以雙方對話、替代說法與接話練習編排。可自由查用，收藏與最近看過會隨學習資料一同備份。</p><p>語音沿用網站的日文合成聲音。工作人員的回覆是會話示例，現場說法可能不同；可用上方求助句請對方再說一次。</p><p>對話與中文由本站編寫，參考下列資源核對情境與表達。</p>${sources.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener">${label} ↗</a>`).join('')}</details>`;}
+  ${routesOpen?routePicker():''}
+  <section id="f-results" aria-labelledby="f-results-title">
+   <div class="f-result-heading"><h2 id="f-results-title" tabindex="-1">${esc(resultTitle)}</h2><span id="f-result-count" role="status">${results.length} 個情境</span>${categoryName?'<button class="secondary f-switch-category" data-faction="switch-category">更換分類 ↑</button>':''}</div>
+   <div id="f-result-list">${cards(results)}</div>
+  </section>
+  <details class="f-sources"><summary>關於這本日常會話</summary><p>${categories.length}類、${scenes.length}個常見小情境，以雙方對話、替代說法與接話練習編排。可自由查用，收藏與最近看過會隨學習資料一同備份。</p><p>語音沿用網站的日文合成聲音。工作人員的回覆是會話示例，現場說法可能不同；可用上方求助句請對方再說一次。</p><p>對話與中文由本站編寫，參考下列資源核對情境與表達。</p>${sources.map(([label,url])=>`<a href="${url}" target="_blank" rel="noopener">${label} ↗</a>`).join('')}</details>`;
+ }
  const lineActions=(index,kind='line',label=`第 ${Number(index)+1} 句`)=>`<div class="f-line-actions"><button data-fsound="${kind}:${index}" aria-label="播放：${label}">♪ 聽這句</button><button data-fcard="${kind}:${index}">放大這句 ↗</button></div>`;
  function replyPractice(s){
   const p=s.replyPractice;if(!p)return '';
@@ -89,7 +108,16 @@ export function createPhrasebook(api){
    if(d.fpocketSound||d.fpocketCard){const line=pocketLine(d.fpocketSound||d.fpocketCard);if(line){if(d.fpocketSound)api.speak(plainJapanese(line.jp),button,{rate});else largeCard(line);}return true;}
    if(d.freply){const p=current?selected().replyPractice:null;if(p?.options.some(o=>o.id===d.freply)){api.stopSpeech();replyChoice=d.freply;showPrompt=true;refresh('#f-reply-result');document.querySelector('#f-reply-result')?.scrollIntoView({block:'nearest'});}return true;}
    if(d.fsave){if(toggleSaved(book(),d.fsave)){api.changed();refresh(`[data-fsave="${d.fsave}"]`);}return true;}
-   if(d.fcategory){if(d.fcategory==='all'||categories.some(c=>c.id===d.fcategory)){category=d.fcategory;refresh(`[data-fcategory="${category}"]`);}return true;}
+   if(d.fcategory){
+    if(d.fcategory==='all'||categories.some(c=>c.id===d.fcategory)){
+     category=d.fcategory;
+     if(category!=='all'&&isNarrow()){
+      refresh();
+      focusSection('#f-results','#f-results-title');
+     }else refresh(`[data-fcategory="${category}"]`);
+    }
+    return true;
+   }
    if(d.fscope){if(['all','saved','recent'].includes(d.fscope)){scope=d.fscope;refresh(`[data-fscope="${scope}"]`);}return true;}
    if(d.frole){if(['all','you','staff'].includes(d.frole)){role=d.frole;api.stopSpeech();refresh(`[data-frole="${role}"]`);}return true;}
    if(d.frate){const n=Number(d.frate);if([1,.65].includes(n)){rate=n;api.stopSpeech();refresh(`[data-frate="${rate}"]`);}return true;}
@@ -99,7 +127,15 @@ export function createPhrasebook(api){
    if(d.fmodalSound){if(d.fmodalText)api.speak(d.fmodalText,button,{rate});return true;}
    if(!d.faction)return false;
    api.stopSpeech();
-   if(d.faction==='back'){current=null;pocketOpen=false;rehearsal=null;refresh('#f-title',true);}
+   if(d.faction==='back'){
+    const returnToResults=current&&category!=='all'&&isNarrow();
+    current=null;pocketOpen=false;rehearsal=null;
+    if(returnToResults){
+     refresh();
+     focusSection('#f-results','#f-results-title');
+    }else refresh('#f-title',true);
+   }
+   if(d.faction==='switch-category')focusSection('#f-categories');
    if(d.faction==='pocket'){current=null;pocketOpen=true;rehearsal=null;refresh('#f-title',true);}
    if(d.faction==='routes'){routesOpen=!routesOpen;refresh(routesOpen?'#fr-routes-title':'[data-faction="routes"]');if(routesOpen)document.querySelector('.fr-route-section')?.scrollIntoView({block:'start'});}
    if(['pocket-html','pocket-text'].includes(d.faction)&&book().saved.length)api.download(d.faction==='pocket-html'?pocketHtml(book()):pocketText(book()),d.faction==='pocket-html'?'html':'txt');

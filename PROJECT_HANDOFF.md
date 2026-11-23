@@ -4,7 +4,7 @@
 
 ## 現況與入口
 
-- **v1.23.0** 包含學習階段導覽、N5／N4 參考入口、文法第 47～49 課及情境第 20～24 課。14 組自動測試通過，瀏覽器版面及裝置日語語音待驗證。 [版本紀錄](RELEASE-v1.23.0.md) · [課程索引](../COURSE_INDEX.md)
+- **v1.23.1** 改善手機版會話分類的跳轉與返回。Chrome 窄版及桌機版已驗證，實體 iPhone Safari 尚待確認。 [版本紀錄](RELEASE-v1.23.1.md) · [課程索引](../COURSE_INDEX.md)
 - [dist/index.html](dist/index.html) 為網站入口，GitHub Pages 工作流程發布 `dist/`。
 - `npm start` 啟動本機預覽，`npm run check` 檢查語法，`npm test` 執行 14 組測試。使用說明見 [README](README.md)；版本與回復方式見 [RESTORE](RESTORE.md)。
 

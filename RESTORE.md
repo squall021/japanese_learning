@@ -8,6 +8,8 @@
 
 | 標籤 | 用途 |
 | --- | --- |
+| `checkpoint-20261124-0727-before-phrasebook-navigation` | 手機會話導覽改動前的 v1.23.0，提交 `a8f21cb` |
+| `v1.23.1` | 手機版會話分類跳轉及返回 |
 | `checkpoint-20261124-0638-before-curriculum-lessons` | 課程擴充前的 v1.22.0，提交 `3506e02` |
 | `v1.23.0` | 文法第 47～49 課、情境第 20～24 課和學習階段導覽 |
 | `checkpoint-before-github-2026-10-24` | 搬移前的第一版，commit `f314ca6bdec80877663357e3875d5256808e82c1` |
